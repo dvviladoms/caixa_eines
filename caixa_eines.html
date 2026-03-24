@@ -182,18 +182,62 @@
         @media (max-width: 768px) {
             .grid-3-col { grid-template-columns: 1fr; }
         }
+		
+		/* PANTALLA DE CÀRREGA */
+        #loading-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(204, 204, 204, 0.95); /* Color gris fons amb opacitat */
+            z-index: 9999; /* Per sobre de tot */
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+        }
+        .spinner {
+            border: 8px solid #fff;
+            border-top: 8px solid #666;
+            border-radius: 50%;
+            width: 60px;
+            height: 60px;
+            animation: spin 1s linear infinite;
+            margin-bottom: 20px;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        .loading-text {
+            font-size: 1.5em;
+            font-weight: bold;
+            color: #000;
+            border: 2px solid; 
+            border-color: #fff #666 #666 #fff;
+            padding: 10px 20px;
+            background: #eee;
+        }
     </style>
 </head>
 <body>
 
+    <div id="loading-overlay">
+        <div class="spinner"></div>
+        <div class="loading-text">Carregant la caixa d'eines... Si us plau, espera.</div>
+    </div>
+
 	<div class="tabs-nav" style="display: flex; justify-content: space-between; align-items: flex-end;">
         <div style="display: flex; flex-wrap: wrap; gap: 2px;">
-            <button class="tab-btn active" data-text="Calculadora Factures" onclick="switchTab('tab-calc-factures', this)">Calculadora Factures</button>
+            <button class="tab-btn active" data-text="Enllaços Eines" onclick="switchTab('tab-enllacos', this)">Enllaços Eines</button>
+			<button class="tab-btn" data-text="Calculadora Factures" onclick="switchTab('tab-calc-factures', this)">Calculadora Factures</button>
             <button class="tab-btn" data-text="Distribució Costos" onclick="switchTab('tab-distribucio', this)">Distribució Costos</button>
-            <button class="tab-btn" data-text="Cercador Combinacions" onclick="switchTab('tab-cercador', this)">Cercador Combinacions</button>
+            <button class="tab-btn" data-text="Agrupador Imports" onclick="switchTab('tab-agrup-imports', this)">Agrupador Imports</button>
+			<button class="tab-btn" data-text="Cercador Combinacions" onclick="switchTab('tab-cercador', this)">Cercador Combinacions</button>
             <button class="tab-btn" data-text="Validador DNI" onclick="switchTab('tab-validador', this)">Validador DNI</button>
             <button class="tab-btn" data-text="Comparador Arxius" onclick="switchTab('tab-llistador', this)">Comparador Arxius</button>
-            <button class="tab-btn" data-text="Text a Columnes" onclick="switchTab('tab-conversor', this)">Text a Columnes</button>
+            <button class="tab-btn" data-text="Extractor Dades" onclick="switchTab('tab-extractor', this)">Extractor Dades</button>
         </div>
         
         <div style="padding-bottom: 5px; padding-right: 10px; display: flex; align-items: center; gap: 10px; white-space: nowrap;">
@@ -206,7 +250,78 @@
         </div>
     </div>
 
-    <div id="tab-calc-factures" class="tab-content" style="display:block;">
+    <div id="tab-enllacos" class="tab-content" style="display:block;">
+        <div class="tool-container">
+            <div class="card">
+                <h1>Enllaços i Eines</h1>
+                
+				<div style="margin-bottom: 25px;">
+                    <h2 style="font-size: 1.2em; border-bottom: 1px dotted #999; padding-bottom: 5px; margin-bottom: 10px;">Programari</h2>
+                    <ul style="list-style-type: square; padding-left: 20px; line-height: 1.8;">
+                        <li>
+                            <a href="https://app.diagrams.net/?src=about" target="_blank" style="text-decoration: underline; font-weight: bold;">Diagrams.net</a>: 
+                            Creació de diagrames en línia.
+                        </li>
+                    </ul>
+                </div>
+				
+                <div style="margin-bottom: 25px;">
+                    <h2 style="font-size: 1.2em; border-bottom: 1px dotted #999; padding-bottom: 5px; margin-bottom: 10px;">Conversors i programació</h2>
+                    <ul style="list-style-type: square; padding-left: 20px; line-height: 1.8;">
+                        <li>
+                            <a href="https://www.ilovepdf.com/" target="_blank" style="text-decoration: underline; font-weight: bold;">ILovePDF</a>: 
+                            Modificació i edició d'arxius PDF.
+                        </li>
+						<li>
+                            <a href="https://www.iloveimg.com/" target="_blank" style="text-decoration: underline; font-weight: bold;">ILoveIMG</a>: 
+                            Conversió de formats d'arxius d'imatge.
+                        </li>
+                        <li>
+                            <a href="https://www.freeconvert.com/" target="_blank" style="text-decoration: underline; font-weight: bold;">FreeConvert</a>: 
+                            Conversió de formats de diversos tipus d'arxius.
+                        </li>
+						<li>
+						   <a href="https://text-compare.com/" target="_blank" style="text-decoration:underline; font-weight: bold;">Text Compare</a>:
+						   Comparació de text en dues columnes paral·leles.
+						</li>
+						<li>
+						   <a href="https://capitalizemytitle.com/tools/column-to-comma-separated-list/" target="_blank" style="text-decoration:underline; font-weight: bold;">Online Comma Separator</a>:
+						   Conversió de columnes de text a llista de comes separades (per a SQL).
+						</li>
+                    </ul>
+                </div>
+
+                <div style="margin-bottom: 25px;">
+                    <h2 style="font-size: 1.2em; border-bottom: 1px dotted #999; padding-bottom: 5px; margin-bottom: 10px;">Validadors de dades</h2>
+                    <ul style="list-style-type: square; padding-left: 20px; line-height: 1.8;">
+                        <li>
+                            <a href="https://www.ibancalculator.com/" target="_blank" style="text-decoration: underline; font-weight: bold;">IBAN Calculator</a>: 
+                            Validació de comptes IBAN i codis bancaris BIC/SWIFT.
+                        </li>
+                        <li>
+                            <a href="https://ec.europa.eu/taxation_customs/vies/#/vat-validation" target="_blank" style="text-decoration: underline; font-weight: bold;">VIES Validator (European Comission)</a>: 
+                            Validació de CIF d'empreses intracomunitàries al sistema VIES.
+                        </li>
+						<li>
+                            <a href="https://www.letranif.com/" target="_blank" style="text-decoration: underline; font-weight: bold;">Letra NIF</a>: 
+                            Validació de números i lletres de NIF/DNI/NIE/CIF.
+                        </li>
+						<li>
+                            <a href="https://www.empresia.es/" target="_blank" style="text-decoration: underline; font-weight: bold;">Empresia</a>: 
+                            Obtenció de dades fiscals i mercantils d'empreses.
+                        </li>
+						<li>
+                            <a href="https://www.codigospostales.com/mapfus.html" target="_blank" style="text-decoration: underline; font-weight: bold;">Códigos Postales</a>: 
+                            Consulta de delimitacions de codis postals.
+                        </li>
+                    </ul>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+    <div id="tab-calc-factures" class="tab-content">
         <div class="tool-container">
             <div class="card">
                 <h1>Calculadora d'Imports de Factures</h1>
@@ -270,6 +385,68 @@
         </div>
     </div>
 
+	<div id="tab-agrup-imports" class="tab-content">
+		<div class="tool-container">
+			<div class="card">
+				<h1>Agrupador d'Imports</h1>
+				
+				<div style="display: grid; grid-template-columns: 1fr 2fr; gap: 20px;">
+					<div>
+						<div class="input-group">
+							<label for="calc-col-input">Enganxa les xifres (una per línia):</label>
+							<textarea id="calc-col-input" class="input-verd" style="height: 300px;" placeholder="Ex:&#10;150.50&#10;24,00&#10;-15,20"></textarea>
+						</div>
+						<button py-click="processar_columnes" class="btn-main">Llegeix les xifres</button>
+					</div>
+
+					<div>
+						<div class="input-group" style="display: flex; gap: 10px; align-items: flex-end; margin-bottom: 15px; padding-bottom: 10px; border-bottom: 2px groove #fff;">
+							<div style="flex: 1;">
+								<label for="nova-etiqueta">Crea una etiqueta nova:</label>
+								<input type="text" id="nova-etiqueta" class="input-verd" placeholder="Escriu el nom i prem Afegeix...">
+							</div>
+							<button py-click="afegir_etiqueta" class="btn-secondary" style="height: 29px; margin: 0;">Afegeix</button>
+						</div>
+
+						<label>Assignació d'Etiquetes:</label>
+						<div class="table-wrapper" style="max-height: 230px; overflow-y: auto; margin-top: 0;">
+							<table id="calc-col-table" class="data-table">
+								<thead>
+									<tr>
+										<th style="width: 40%;">Xifra</th>
+										<th style="width: 60%;">Etiqueta</th>
+									</tr>
+								</thead>
+								<tbody id="calc-col-body">
+									<tr><td colspan="2" style="text-align: center; color: #666;">Prem "Llegeix les xifres" per començar</td></tr>
+								</tbody>
+							</table>
+						</div>
+					</div>
+				</div>
+
+				<div id="calc-col-summary-box" class="res-sepia" style="display:none; margin-top: 20px;">
+					<h3 style="margin-top: 0; border-bottom: 1px dotted #999; padding-bottom: 5px;">Resum per Etiquetes</h3>
+					<table class="dist-table" style="width: 50%;">
+						<thead>
+							<tr>
+								<th>Etiqueta</th>
+								<th style="text-align: right;">Suma Total</th>
+							</tr>
+						</thead>
+						<tbody id="calc-col-summary-body"></tbody>
+						<tfoot class="dist-tfoot">
+							<tr>
+								<td>TOTAL GENERAL</td>
+								<td id="calc-col-total-general" style="text-align: right;">0,00</td>
+							</tr>
+						</tfoot>
+					</table>
+				</div>
+			</div>
+		</div>
+	</div>
+
     <div id="tab-cercador" class="tab-content">
         <div class="tool-container">
             <div class="card">
@@ -280,7 +457,7 @@
                 </div>
                 <div class="input-group">
                     <label for="invoices-input">Llista d'imports (un per línia):</label>
-                    <p style="font-weight: bold; margin-bottom: 15px;">Atenció: si s'hi inclouen més de 30 elements, pot bloquejar-se i no funcionar.</p>
+                    <p style="font-weight: bold; margin-bottom: 15px;">Atenció: si s'hi inclouen molts elements, pot bloquejar-se i no funcionar.</p>
                     <textarea id="invoices-input" class="input-verd" placeholder="Enganxa aquí els imports:&#10;145,65&#10;56,45&#10;52,00..." style="height: 200px;"></textarea>
                 </div>
                 <button py-click="main_logic" id="run-btn" class="btn-main">Cerca Combinacions</button>
@@ -386,17 +563,18 @@
         </div>
     </div>
 
-    <div id="tab-conversor" class="tab-content">
+<div id="tab-extractor" class="tab-content">
         <div class="tool-container">
             <div class="card" style="max-width: 1100px;">
-                <h1>Conversor de Text a Columnes</h1>
+                <h1>Extractor de Dades</h1>
                 <div class="input-group">
                     <label for="input-text">Enganxa el text:</label>
                     <textarea id="input-text" class="input-verd" style="height: 150px;" placeholder="Exemple:&#10;514100D060 PLASTICO INFERIOR MOTOR 17638522 26/01/2026 1,00 306,77 20,00 245,42"></textarea>
                 </div>
+                
                 <div class="input-group">
                     <label for="delimiter-select">Tria el separador:</label>
-                    <select id="delimiter-select">
+                    <select id="delimiter-select" class="input-verd">
                         <option value=" " selected>Espai en blanc ( )</option>
                         <option value=",">Coma (,)</option>
                         <option value=".">Punt (.)</option>
@@ -405,38 +583,29 @@
                         <option value="|">Barra vertical (|)</option>
                     </select>
                 </div>
+                
                 <button py-click="processar_text" id="convert-btn" class="btn-main">Converteix a Columnes</button>
 
                 <div id="output-box" class="res-sepia" style="display:none;">
+                    <div style="background-color: #eee; border: 2px solid; border-color: #666 #fff #fff #666; padding: 10px; margin-bottom: 15px;">
+                        <span style="font-weight: bold; font-size: 14px;">Edició manual de cel·les:</span>
+                        <ul style="margin: 5px 0 0 0; padding-left: 20px;">
+                            <li><b>Edita una cel·la:</b> Fes doble clic, modifica el text i prem <b>Intro</b>.</li>
+							<li><b>Fusiona dues cel·les:</b> Fes clic a una cel·la per seleccionar-la. Després, fes clic a la del costat per unir-les.</li>
+							<li><b>Divideix una cel·la:</b> Fes <b>doble clic</b>, col·loca el cursor per on vulguis tallar i prem <b>Shift + Intro</b>.</li>
+							<li><b>Elimina una cel·la:</b> Selecciona-la i prem <b>Suprimir</b> o <b>Retrocés</b> per esborrar-la.</li>
+                            <li><b>Desplaça una cel·la a la dreta:</b> Fes <b>Ctrl + Clic</b> sobre una cel·la per inserir un buit abans.</li>
+                            <li><b>Desplaça una cel·la a l'esquerra:</b> Fes <b>Shift + Clic</b> sobre una cel·la per eliminar la cel·la anterior i desplaçar-la a l'esquerra. </li>
+                        </ul>
+                    </div>
+                    
                     <div class="res-header">
-                        <div class="checkbox-group">
-                            <div class="check-column">
-                                <label class="checkbox-container" title="Uneix paraules consecutives (Executat abans de l'alineació)">
-                                    <input type="checkbox" id="chk-group-text" py-change="recalcular_resultats"> Agrupa el Text
-                                </label>
-                                <label class="checkbox-container" title="Separa text pur de text amb números">
-                                    <input type="checkbox" id="chk-distinguish-text" py-change="recalcular_resultats"> Distingeix Text
-                                </label>
-                            </div>
-                            <div class="check-column">
-                                <label class="checkbox-container" title="Uneix números consecutius">
-                                    <input type="checkbox" id="chk-group-nums" py-change="recalcular_resultats"> Agrupa Números
-                                </label>
-                                <label class="checkbox-container" title="Separa enters (unitats/ID) de decimals (moneda)">
-                                    <input type="checkbox" id="chk-distinguish-nums" py-change="recalcular_resultats"> Distingeix Números
-                                </label>
-                            </div>
-                            <div class="check-column">
-                                <label class="checkbox-container" title="Desplaça cel·les per encaixar amb la majoria (Look-Ahead)">
-                                    <input type="checkbox" id="chk-smart-cols" py-change="recalcular_resultats"> Detecta Columnes
-                                </label>
-                            </div>
-                        </div>
-                        <div style="margin-top: 10px;">
+                        <div style="margin-top: 10px; width: 100%; display: flex; justify-content: flex-end; gap: 10px;">
                             <button py-click="exportar_csv" class="btn-secondary">Baixa en format .csv</button>
                             <button onclick="copyTableToClipboard('result-table')" class="btn-copy">Copia la Taula</button>
                         </div>
                     </div>
+                    
                     <div class="table-wrapper">
                         <table id="result-table" class="data-table"></table>
                     </div>
@@ -650,8 +819,8 @@
                 if sum(combinacio) == target_val: 
                     solucions.append(combinacio)
                 
-                # Actualitzem la UI cada 50.000 iteracions per no penalitzar el rendiment
-                if combinacions_revisades % 50000 == 0:
+                # Actualitzem la UI cada 1.000 iteracions per no penalitzar el rendiment
+                if combinacions_revisades % 1000 == 0:
                     percent = (combinacions_revisades / total_combinacions) * 100
                     output_div.innerHTML = f"Processant... {percent:.2f}%"
                     await asyncio.sleep(0)
@@ -943,130 +1112,26 @@
         downloadFile(f"diferencies_{ts}.txt", text_content)
 
     # ==========================================
-    # TOOL 4: TEXT A COLUMNES
+    # TOOL 4: TEXT A COLUMNES (INTERACTIU)
     # ==========================================
     CACHE_DATA_FINAL = []
     RAW_SPLIT_DATA = []
-
-    def detectar_tipus(val, dist_text=False, dist_nums=False):
-        val = val.strip()
-        if not val: return 'BUIT'
-        if re.match(r'^\d{1,4}[-/]\d{1,2}[-/]\d{1,4}$', val): return 'DATA'
-        if re.match(r'^-?[\d\.,]+$', val) and any(c.isdigit() for c in val):
-            if dist_nums:
-                if '.' in val or ',' in val: return 'NUM_DEC'
-                return 'NUM_INT'
-            return 'NUM'
-        if dist_text:
-            if re.match(r'^[a-zA-ZÀ-ÿ\s\.,;:\-_!¡?¿"\'()]+$', val): return 'TXT_PUR'
-            return 'TXT_ALPHANUM'
-        return 'TEXT'
-
-    def agrupar_fila(row, do_text, do_nums, dist_text, dist_nums):
-        if not row: return []
-        if not do_text and not do_nums: return row 
-        new_row = []
-        current_val = row[0]
-        current_type = detectar_tipus(current_val, dist_text, dist_nums)
-        for i in range(1, len(row)):
-            next_val = row[i]
-            next_type = detectar_tipus(next_val, dist_text, dist_nums)
-            should_merge = False
-            if current_type == next_type:
-                if 'TXT' in current_type or current_type == 'TEXT':
-                    if do_text: should_merge = True
-                elif 'NUM' in current_type: 
-                    if do_nums: should_merge = True
-            if should_merge:
-                current_val = current_val + " " + next_val
-            else:
-                new_row.append(current_val)
-                current_val = next_val
-                current_type = next_type
-        new_row.append(current_val)
-        return new_row
-
-    def alinear_columnes_lookahead(dataset, dist_text, dist_nums):
-        if not dataset: return []
-        max_len = max(len(row) for row in dataset)
-        reference_rows = [r for r in dataset if len(r) == max_len]
-        if not reference_rows: reference_rows = dataset
-        schema = []
-        for col_idx in range(max_len):
-            votes = []
-            for row in reference_rows:
-                if col_idx < len(row):
-                    t = detectar_tipus(row[col_idx], dist_text, dist_nums)
-                    if t != 'BUIT': votes.append(t)
-            if votes:
-                most_common = collections.Counter(votes).most_common(1)[0][0]
-                schema.append(most_common)
-            else: schema.append('TEXT')
-
-        aligned_data = []
-        for row in dataset:
-            if len(row) == max_len:
-                aligned_data.append(row)
-                continue
-            new_row = []
-            row_idx = 0
-            schema_idx = 0
-            while row_idx < len(row) and schema_idx < len(schema):
-                val = row[row_idx]
-                curr_type = detectar_tipus(val, dist_text, dist_nums)
-                expected_type = schema[schema_idx]
-                if curr_type == expected_type or curr_type == 'BUIT':
-                    new_row.append(val)
-                    row_idx += 1
-                    schema_idx += 1
-                else:
-                    found_match_ahead = False
-                    search_limit = min(len(schema), schema_idx + 5)
-                    for k in range(schema_idx + 1, search_limit):
-                        if curr_type == schema[k]:
-                            for _ in range(k - schema_idx): new_row.append("")
-                            new_row.append(val)
-                            row_idx += 1
-                            schema_idx = k + 1
-                            found_match_ahead = True
-                            break
-                    if not found_match_ahead:
-                        new_row.append(val)
-                        row_idx += 1
-                        schema_idx += 1
-            while row_idx < len(row):
-                new_row.append(row[row_idx])
-                row_idx += 1
-            aligned_data.append(new_row)
-        return aligned_data
-
-    def recalcular_resultats(event):
-        global CACHE_DATA_FINAL, RAW_SPLIT_DATA
-        if not RAW_SPLIT_DATA: return
-        chk_text = document.querySelector("#chk-group-text").checked
-        chk_dist_text = document.querySelector("#chk-distinguish-text").checked
-        chk_nums = document.querySelector("#chk-group-nums").checked
-        chk_dist_nums = document.querySelector("#chk-distinguish-nums").checked
-        chk_smart = document.querySelector("#chk-smart-cols").checked
-        step1_data = []
-        for row in RAW_SPLIT_DATA:
-            step1_data.append(agrupar_fila(row, chk_text, chk_nums, chk_dist_text, chk_dist_nums))
-        step2_data = step1_data
-        if chk_smart: step2_data = alinear_columnes_lookahead(step1_data, chk_dist_text, chk_dist_nums)
-        CACHE_DATA_FINAL = step2_data
-        renderitzar_taula(CACHE_DATA_FINAL)
+    CELLA_SELECCIONADA = None
 
     def processar_text(event):
-        global RAW_SPLIT_DATA
+        global CACHE_DATA_FINAL, CELLA_SELECCIONADA
         raw_text = document.querySelector("#input-text").value
         delimiter_key = document.querySelector("#delimiter-select").value
         delimiter_char = " "
+        
         if delimiter_key == ",": delimiter_char = ","
         elif delimiter_key == ".": delimiter_char = "."
         elif delimiter_key == ";": delimiter_char = ";"
         elif delimiter_key == "|": delimiter_char = "|"
         elif delimiter_key == "tab": delimiter_char = "\t"
+        
         if not raw_text.strip(): return
+        
         lines = raw_text.strip().split('\n')
         parsed_data = []
         for line in lines:
@@ -1075,15 +1140,179 @@
             row = [cell.strip() for cell in row if cell.strip() != '']
             if not row: continue
             parsed_data.append(row)
-        RAW_SPLIT_DATA = parsed_data
-        recalcular_resultats(None)
+            
+        CACHE_DATA_FINAL = parsed_data
+        CELLA_SELECCIONADA = None
+        renderitzar_taula(CACHE_DATA_FINAL)
         document.querySelector("#output-box").style.display = "block"
 
+    # --- EDICIÓ INTERACTIVA DE CEL·LES ---
+    def gestionar_clic_taula(event):
+        global CACHE_DATA_FINAL, CELLA_SELECCIONADA
+        
+        # Ignorem el segon clic d'un doble clic perquè no interfereixi amb l'edició
+        if getattr(event, "detail", 1) >= 2:
+            return
+            
+        td = event.target.closest("td")
+        if not td: return
+        
+        # Comprovació de seguretat
+        tag = getattr(event.target, "tagName", "")
+        if tag == "BUTTON" or tag == "INPUT": return
+
+        r = int(td.getAttribute("data-r"))
+        c = int(td.getAttribute("data-c"))
+
+        # Ctrl+Clic (o Cmd+Clic) desplaça a la dreta (afegeix un buit ABANS de la cel·la)
+        if getattr(event, "ctrlKey", False) or getattr(event, "metaKey", False):
+            CACHE_DATA_FINAL[r].insert(c, "")
+            CELLA_SELECCIONADA = None
+            renderitzar_taula(CACHE_DATA_FINAL)
+            return
+
+        # NOU: Shift+Clic desplaça a l'esquerra NOMÉS si hi ha un espai en blanc abans
+        if getattr(event, "shiftKey", False):
+            if c > 0: # Només podem desplaçar a l'esquerra si no estem ja a la primera columna
+                # Protecció: només esborrem la cel·la si està completament buida
+                if str(CACHE_DATA_FINAL[r][c - 1]).strip() == "":
+                    del CACHE_DATA_FINAL[r][c - 1]
+                    CELLA_SELECCIONADA = None
+                    renderitzar_taula(CACHE_DATA_FINAL)
+            return
+
+        # Lògica normal de selecció i fusió
+        if CELLA_SELECCIONADA is None:
+            CELLA_SELECCIONADA = (r, c)
+            renderitzar_taula(CACHE_DATA_FINAL)
+        else:
+            sr, sc = CELLA_SELECCIONADA
+            if sr == r and abs(sc - c) == 1:
+                # Si es clica la cel·la del costat -> Es fusionen
+                esq = min(sc, c)
+                dreta = max(sc, c)
+                CACHE_DATA_FINAL[r][esq] = f"{CACHE_DATA_FINAL[r][esq]} {CACHE_DATA_FINAL[r][dreta]}"
+                del CACHE_DATA_FINAL[r][dreta]
+                CELLA_SELECCIONADA = None
+                renderitzar_taula(CACHE_DATA_FINAL)
+            elif sr == r and sc == c:
+                # Si es clica la mateixa -> Es desselecciona
+                CELLA_SELECCIONADA = None
+                renderitzar_taula(CACHE_DATA_FINAL)
+            else:
+                # Si es clica una altra cel·la llunyana -> Canvia la selecció
+                CELLA_SELECCIONADA = (r, c)
+                renderitzar_taula(CACHE_DATA_FINAL)
+
+    def desar_edicio_inline(event):
+        global CACHE_DATA_FINAL, CELLA_SELECCIONADA
+        
+        input_el = event.target
+        td = input_el.closest("td")
+        if not td: return
+            
+        r = int(td.getAttribute("data-r"))
+        c = int(td.getAttribute("data-c"))
+        
+        # Gestionem si s'està escrivint amb el teclat
+        if event.type == "keydown":
+            if getattr(event, "key", "") == "Enter":
+                # Si premem Shift + Intro, tallem pel cursor
+                if getattr(event, "shiftKey", False):
+                    pos = int(getattr(input_el, "selectionStart", 0))
+                    val = input_el.value
+                    if 0 < pos < len(val):
+                        # Tallem la cadena de text per la posició exacta del cursor
+                        CACHE_DATA_FINAL[r][c] = val[:pos].strip()
+                        CACHE_DATA_FINAL[r].insert(c + 1, val[pos:].strip())
+                    else:
+                        CACHE_DATA_FINAL[r][c] = val.strip()
+                else:
+                    # Guardat normal només amb Intro (sense talls per barres verticals)
+                    CACHE_DATA_FINAL[r][c] = input_el.value.strip()
+                
+                CELLA_SELECCIONADA = None
+                renderitzar_taula(CACHE_DATA_FINAL)
+            return
+            
+        # Gestionem el guardat si l'usuari fa clic a fora (blur)
+        elif event.type == "blur":
+            CACHE_DATA_FINAL[r][c] = input_el.value.strip()
+            CELLA_SELECCIONADA = None
+            renderitzar_taula(CACHE_DATA_FINAL)
+
+    def gestionar_doble_clic_taula(event):
+        global CACHE_DATA_FINAL, CELLA_SELECCIONADA
+        td = event.target.closest("td")
+        if not td: return
+        
+        tag = getattr(event.target, "tagName", "")
+        if tag == "BUTTON" or tag == "INPUT": return
+        if td.querySelector("input"): return
+
+        # Anul·lem qualsevol selecció prèvia (que hagi deixat el primer clic)
+        CELLA_SELECCIONADA = None
+        
+        r = int(td.getAttribute("data-r"))
+        c = int(td.getAttribute("data-c"))
+        val_actual = CACHE_DATA_FINAL[r][c]
+        
+        # Buidem la cel·la i hi col·loquem la capsa de text interactiva
+        td.innerHTML = ""
+        input_el = document.createElement("input")
+        input_el.type = "text"
+        input_el.value = val_actual
+        input_el.className = "input-verd"
+        input_el.style.width = "100%"
+        input_el.style.minWidth = "80px"
+        input_el.style.boxSizing = "border-box"
+        
+        td.appendChild(input_el)
+        input_el.focus()
+        
+        add_event_listener(input_el, "blur", desar_edicio_inline)
+        add_event_listener(input_el, "keydown", desar_edicio_inline)
+
+    # --- RENDERITZACIÓ ---
+    # --- RENDERITZACIÓ I NETEJA AUTOMÀTICA ---
     def renderitzar_taula(data):
+        global CELLA_SELECCIONADA
         table = document.querySelector("#result-table")
         table.innerHTML = ""
         if not data: return
-        max_cols = max(len(row) for row in data)
+        
+        # 1. NETEJA DE COLUMNES BUIDES
+        max_cols_temp = max((len(row) for row in data), default=0)
+        cols_a_esborrar = []
+        
+        # Busquem quines columnes estan 100% buides
+        for c in range(max_cols_temp):
+            col_buida = True
+            for row in data:
+                if c < len(row) and str(row[c]).strip() != "":
+                    col_buida = False
+                    break
+            if col_buida:
+                cols_a_esborrar.append(c)
+                
+        # Esborrem les columnes buides de dreta a esquerra (per no trencar els índexs)
+        for c in reversed(cols_a_esborrar):
+            for row in data:
+                if c < len(row):
+                    del row[c]
+            
+            # Si teníem una cel·la seleccionada, reajustem la seva posició o la deseleccionem
+            if CELLA_SELECCIONADA is not None:
+                sr, sc = CELLA_SELECCIONADA
+                if c < sc:
+                    CELLA_SELECCIONADA = (sr, sc - 1)
+                elif c == sc:
+                    CELLA_SELECCIONADA = None
+
+        # 2. DIBUIX DE LA TAULA FINAL
+        max_cols = max((len(row) for row in data), default=0)
+        if max_cols == 0: return
+
         thead = document.createElement("thead")
         header_row = document.createElement("tr")
         for i in range(max_cols):
@@ -1092,17 +1321,59 @@
             header_row.appendChild(th)
         thead.appendChild(header_row)
         table.appendChild(thead)
+        
         tbody = document.createElement("tbody")
-        for row_data in data:
+        for r_idx, row_data in enumerate(data):
             tr = document.createElement("tr")
-            for i in range(max_cols):
+            for c_idx in range(max_cols):
                 td = document.createElement("td")
-                text = row_data[i] if i < len(row_data) else ""
+                text = row_data[c_idx] if c_idx < len(row_data) else ""
                 td.innerText = text
+                
+                td.setAttribute("data-r", str(r_idx))
+                td.setAttribute("data-c", str(c_idx))
+                td.style.cursor = "pointer"
+                
+                if CELLA_SELECCIONADA == (r_idx, c_idx):
+                    td.style.backgroundColor = "#ccc"
+                    td.style.border = "2px solid #333"
+                
                 tr.appendChild(td)
             tbody.appendChild(tr)
         table.appendChild(tbody)
         document.querySelector("#row-count").innerText = f"Total: {len(data)} files."
+
+    def gestionar_teclat(event):
+        global CACHE_DATA_FINAL, CELLA_SELECCIONADA
+        
+        # Només actuem si hi ha una cel·la seleccionada
+        if CELLA_SELECCIONADA is not None:
+            # Mesura de seguretat: si estem escrivint al quadre de text principal, ignorem l'ordre
+            tag = getattr(event.target, "tagName", "")
+            if tag == "INPUT" or tag == "TEXTAREA": return
+            
+            # Detectem la tecla Suprimir (Delete) o Retrocés (Backspace)
+            key = getattr(event, "key", "")
+            if key == "Delete" or key == "Backspace":
+                event.preventDefault() # Evitem que el navegador tiri la pàgina enrere
+                
+                r, c = CELLA_SELECCIONADA
+                
+                # Eliminem la cel·la seleccionada (això fa que la resta de la fila es desplaci a l'esquerra)
+                if c < len(CACHE_DATA_FINAL[r]):
+                    del CACHE_DATA_FINAL[r][c]
+                
+                CELLA_SELECCIONADA = None
+                renderitzar_taula(CACHE_DATA_FINAL)
+
+    # Activem els escoltadors només una vegada
+    try:
+        taula_resultats = document.querySelector("#result-table")
+        add_event_listener(taula_resultats, "click", gestionar_clic_taula)
+        add_event_listener(taula_resultats, "dblclick", gestionar_doble_clic_taula)
+        add_event_listener(document, "keydown", gestionar_teclat)
+    except:
+        pass
 
     def exportar_csv(event):
         global CACHE_DATA_FINAL
@@ -1113,6 +1384,105 @@
         csv_content = output.getvalue()
         ts = datetime.datetime.now().strftime("%Y%m%d_%H%M")
         downloadFile(f"dades_convertides_{ts}.csv", csv_content)
+
+    # ==========================================
+    # TOOL 8: AGRUPADOR IMPORTS
+    # ==========================================
+    ETIQUETES_DISPONIBLES = []
+
+    def afegir_etiqueta(event):
+        global ETIQUETES_DISPONIBLES
+        input_el = document.querySelector("#nova-etiqueta")
+        nova_etiq = input_el.value.strip()
+        
+        if nova_etiq and nova_etiq not in ETIQUETES_DISPONIBLES:
+            ETIQUETES_DISPONIBLES.append(nova_etiq)
+            input_el.value = ""
+            actualitzar_desplegables()
+
+    def actualitzar_desplegables():
+        global ETIQUETES_DISPONIBLES
+        selects = document.querySelectorAll(".etiqueta-select")
+        
+        # Actualitzem cada desplegable mantenint la selecció prèvia
+        for sel in selects:
+            valor_actual = sel.value
+            html_options = '<option value="">-- Sense etiqueta --</option>'
+            for etiq in ETIQUETES_DISPONIBLES:
+                selected = "selected" if etiq == valor_actual else ""
+                html_options += f'<option value="{etiq}" {selected}>{etiq}</option>'
+            sel.innerHTML = html_options
+
+    def processar_columnes(event):
+        global ETIQUETES_DISPONIBLES
+        raw_text = document.querySelector("#calc-col-input").value
+        tbody = document.querySelector("#calc-col-body")
+        
+        if not raw_text.strip(): return
+
+        lines = raw_text.strip().split('\n')
+        html_rows = ""
+        
+        # Preparem les opcions base pels nous desplegables
+        options_base = '<option value="">-- Sense etiqueta --</option>'
+        for etiq in ETIQUETES_DISPONIBLES:
+            options_base += f'<option value="{etiq}">{etiq}</option>'
+        
+        for line in lines:
+            val_net = netejar_nombre(line)
+            if val_net is not None:
+                html_rows += f"""
+                <tr>
+                    <td class="col-xifra" data-val="{val_net}" style="text-align: right;">{formatar_num(val_net / 100)}</td>
+                    <td>
+                        <select class="input-verd etiqueta-select" py-change="actualitzar_resum_columnes" style="padding: 2px; width: 100%;">
+                            {options_base}
+                        </select>
+                    </td>
+                </tr>
+                """
+                
+        if html_rows:
+            tbody.innerHTML = html_rows
+            document.querySelector("#calc-col-summary-box").style.display = "block"
+            actualitzar_resum_columnes(None)
+        else:
+            tbody.innerHTML = '<tr><td colspan="2" style="text-align: center;">No s\'ha detectat cap xifra vàlida.</td></tr>'
+
+    def actualitzar_resum_columnes(event):
+        files = document.querySelectorAll("#calc-col-body tr")
+        resum = collections.defaultdict(int)
+        total_general = 0
+        
+        for fila in files:
+            td_xifra = fila.querySelector(".col-xifra")
+            if not td_xifra: continue
+                
+            valor = int(td_xifra.getAttribute("data-val"))
+            select_el = fila.querySelector(".etiqueta-select")
+            
+            # Llegim el valor del select
+            etiqueta = select_el.value.strip() if select_el else ""
+            if not etiqueta:
+                etiqueta = "Sense etiqueta"
+                
+            resum[etiqueta] += valor
+            total_general += valor
+
+        etiquetes_ordenades = sorted(resum.keys())
+        html_resum = ""
+        
+        for etiq in etiquetes_ordenades:
+            nom_mostrar = f"<i>{etiq}</i>" if etiq == "Sense etiqueta" else etiq
+            html_resum += f"<tr><td>{nom_mostrar}</td><td style='text-align: right;'>{formatar_num(resum[etiq] / 100)}</td></tr>"
+            
+        document.querySelector("#calc-col-summary-body").innerHTML = html_resum
+        document.querySelector("#calc-col-total-general").innerHTML = formatar_num(total_general / 100)
+
+    # ==========================================
+    # FINALITZACIÓ CÀRREGA PYSCRIPT
+    # ==========================================
+    document.querySelector("#loading-overlay").style.display = "none"
 
     </script>
 </body>
