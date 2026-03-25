@@ -156,7 +156,7 @@
         .check-column { display: flex; flex-direction: column; gap: 5px; }
         .checkbox-container { display: flex; align-items: center; cursor: default; }
         .checkbox-container input { width: auto; margin-right: 5px; border: none; }
-        .dist-config-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 10px; margin-bottom: 15px; border-bottom: 2px groove #fff; padding-bottom: 15px; }
+        .dist-config-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 10px; margin-bottom: 15px; border-bottom: 2px groove #fff; padding-bottom: 15px; align-items: flex-end; }
         .dist-proj-row { display: grid; grid-template-columns: 2fr 1fr 50px; gap: 5px; align-items: center; margin-bottom: 5px; }
         .top-controls { display: flex; gap: 10px; margin-bottom: 15px; align-items: flex-end; }
         .control-group { flex: 1; }
@@ -224,6 +224,30 @@
             padding: 10px 20px;
             background: #eee;
         }
+
+		input[type="number"]::-webkit-outer-spin-button,
+		input[type="number"]::-webkit-inner-spin-button {
+			-webkit-appearance: none;
+			margin: 0;
+		}
+		input[type="number"] {
+			-moz-appearance: textfield; /* Per a Firefox */
+		}
+		
+		input[type="text"], input[type="number"], select { 
+			height: 25px; 
+		}
+		.casella-falsa {
+			width: 100%;
+			height: 25px;
+			padding: 0 4px;
+			border: 2px solid;
+			border-color: #666 #fff #fff #666;
+			box-sizing: border-box;
+			display: flex;
+			align-items: center;
+		}
+
     </style>
 </head>
 <body>
@@ -341,25 +365,25 @@
                     </div>
                     <div class="input-group">
                         <label>Import:</label>
-                        <input type="number" id="calc-val" class="input-verd" value="1000" step="0.01">
+                        <input type="number" id="calc-val" class="input-verd" placeholder="Ex: 1250,50">
                     </div>
                 </div>
-                <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 15px;">
+                <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 15px; align-items: flex-end; ">
                     <div class="input-group">
-                        <label>% d'IVA:</label>
-                        <input type="number" id="iva-pct" class="input-verd" value="21">
+                        <label>Tipus d'IVA:</label>
+                        <input type="number" id="iva-pct" class="input-verd" placeholder="Ex: 21">
                     </div>
                     <div class="input-group">
                         <label>% d'IVA No Deduïble:</label>
-                        <input type="number" id="nodedu-pct" class="input-verd" value="0" py-input="calc_dedu_auto">
+                        <input type="number" id="nodedu-pct" class="input-verd" placeholder="Ex: 42" py-input="calc_dedu_auto">
                     </div>
                     <div class="input-group">
-                        <label>% d'IVA Deduïble:</label>
-                        <input type="text" id="dedu-pct-show" class="input-verd input-readonly" value="100" readonly>
+                        <label>% d'IVA Deduïble (Prorrata):</label>
+                        <div id="dedu-pct-show" class="casella-falsa input-readonly"><span class="valor-numeric" data-valor="100">100</span></div>
                     </div>
                     <div class="input-group">
-                        <label>% d'IRPF:</label>
-                        <input type="number" id="irpf-pct" class="input-verd" value="0">
+                        <label>Tipus d'IRPF:</label>
+                        <input type="number" id="irpf-pct" class="input-verd" placeholder="Ex: 15">
                     </div>
                 </div>
                 <button py-click="executar_calcul" class="btn-main">Calcula el Desglossament</button>
@@ -375,11 +399,15 @@
             <div class="card">
                 <h1>Distribució de Costos per Projectes</h1>
                 <div class="dist-config-grid">
-                    <div class="input-group"><label>Base Global:</label><input type="number" id="dist-bi-global" class="input-verd" value="1000" step="0.01"></div>
-                    <div class="input-group"><label>% IVA:</label><input type="number" id="dist-iva-pct" class="input-verd" value="21"></div>
-                    <div class="input-group"><label>% No Deduïble:</label><input type="number" id="dist-nodedu-pct" class="input-verd" value="0" py-input="dist_calc_dedu_auto"></div>
-                    <div class="input-group"><label>% Deduïble:</label><input type="text" id="dist-dedu-show" class="input-verd input-readonly" value="100" readonly></div>
-                    <div class="input-group"><label>% IRPF:</label><input type="number" id="dist-irpf-pct" class="input-verd" value="0"></div>
+                    <div class="input-group"><label>Base Imposable Total:</label><input type="number" id="dist-bi-global" class="input-verd" placeholder="Ex: 1250,50"></div>
+                    <div class="input-group"><label>Tipus d'IVA:</label><input type="number" id="dist-iva-pct" class="input-verd" placeholder="Ex: 21"></div>
+                    <div class="input-group"><label>% d'IVA No Deduïble:</label><input type="number" id="dist-nodedu-pct" class="input-verd" placeholder="Ex: 42" py-input="dist_calc_dedu_auto"></div>
+                    <div class="input-group">
+						<label>% d'IVA Deduïble (Prorrata):</label>
+							<div id="dist-dedu-show" class="casella-falsa input-readonly"><span class="valor-numeric" data-valor="100">100</span>
+							</div>
+                    </div>
+                    <div class="input-group"><label>Tipus d'IRPF:</label><input type="number" id="dist-irpf-pct" class="input-verd" placeholder="Ex: 15"></div>
                 </div>
                 <div id="dist-projects-container"></div>
                 <button py-click="dist_afegir_linia" class="btn-action-small btn-add">+ Afegeix Projecte</button>
@@ -717,8 +745,7 @@
         try:
             no_dedu = float(document.querySelector("#nodedu-pct").value or 0)
             dedu = 100 - no_dedu
-            text_dedu = f"{dedu:g}".replace('.', ',')
-            document.querySelector("#dedu-pct-show").value = f"{text_dedu}"
+            document.querySelector("#dedu-pct-show").innerHTML = formatar_num(dedu)
         except: pass
 
     def executar_calcul(event):
@@ -762,7 +789,7 @@
         try:
             no_dedu = float(document.querySelector("#dist-nodedu-pct").value or 0)
             dedu = 100 - no_dedu
-            document.querySelector("#dist-dedu-show").value = f"{dedu}"
+            document.querySelector("#dist-dedu-show").innerHTML = formatar_num(dedu)
         except: pass
 
     def dist_eliminar_linia(event):
@@ -781,7 +808,7 @@
         div.className = "dist-proj-row"
         div.innerHTML = f"""
             <div><label>Projecte {count}:</label><input type="text" class="dist-proj-name input-verd" placeholder="Nom del projecte"></div>
-            <div><label>Cost Total:</label><input type="number" class="dist-proj-val input-verd" step="0.01" value="0"></div>
+            <div><label>Cost Total:</label><input type="number" class="dist-proj-val input-verd" placeholder="Ex: 530,50"></div>
             <button class="btn-del" title="Elimina Projecte">X</button>
         """
         div.querySelector(".btn-del").onclick = dist_eliminar_linia
@@ -827,8 +854,8 @@
                 </table>
             </div>
             <div style="margin-top:20px; padding:15px; background-color: #fff; border: 1px solid #000;">
-                <div style="display:flex; justify-content:space-between; margin-bottom:5px;"><span>Cost Total Objectiu (segons Base Global):</span><span style="font-weight:bold;">{formatar_num(cost_total_factura)}</span></div>
-                <div style="display:flex; justify-content:space-between; margin-bottom:5px;"><span>Cost Total Repartit (suma projectes):</span><span style="font-weight:bold;">{formatar_num(sum_cost)}</span></div>
+                <div style="display:flex; justify-content:space-between; margin-bottom:5px;"><span>Cost Total Real:</span><span style="font-weight:bold;">{formatar_num(cost_total_factura)}</span></div>
+                <div style="display:flex; justify-content:space-between; margin-bottom:5px;"><span>Cost Total Repartit:</span><span style="font-weight:bold;">{formatar_num(sum_cost)}</span></div>
             """
             if abs(diferencia_cost) > 0.01: html += f'<div class="alert-box">Diferència: {formatar_num(diferencia_cost)} pendents d\'assignar.</div>'
             else: html += f'<div style="margin-top:10px; text-align:center; padding:10px;" class="success-text">Tot el cost està perfectament repartit.</div>'
