@@ -290,68 +290,50 @@
             <div class="card">
                 <h1>Enllaços i Eines</h1>
                 
-				<div style="margin-bottom: 25px;">
-                    <h2 style="font-size: 1.2em; border-bottom: 1px dotted #999; padding-bottom: 5px; margin-bottom: 10px;">Programari</h2>
-                    <ul style="list-style-type: square; padding-left: 20px; line-height: 1.8;">
-                        <li>
-                            <a href="https://app.diagrams.net/?src=about" target="_blank" style="text-decoration: underline; font-weight: bold;">Diagrams.net</a>: 
-                            Creació de diagrames en línia.
-                        </li>
-                    </ul>
-                </div>
+				<div id="contenidor-enllacos"></div>
 				
-                <div style="margin-bottom: 25px;">
-                    <h2 style="font-size: 1.2em; border-bottom: 1px dotted #999; padding-bottom: 5px; margin-bottom: 10px;">Conversors i programació</h2>
-                    <ul style="list-style-type: square; padding-left: 20px; line-height: 1.8;">
-                        <li>
-                            <a href="https://www.ilovepdf.com/" target="_blank" style="text-decoration: underline; font-weight: bold;">ILovePDF</a>: 
-                            Modificació i edició d'arxius PDF.
-                        </li>
-						<li>
-                            <a href="https://www.iloveimg.com/" target="_blank" style="text-decoration: underline; font-weight: bold;">ILoveIMG</a>: 
-                            Conversió de formats d'arxius d'imatge.
-                        </li>
-                        <li>
-                            <a href="https://www.freeconvert.com/" target="_blank" style="text-decoration: underline; font-weight: bold;">FreeConvert</a>: 
-                            Conversió de formats de diversos tipus d'arxius.
-                        </li>
-						<li>
-						   <a href="https://text-compare.com/" target="_blank" style="text-decoration:underline; font-weight: bold;">Text Compare</a>:
-						   Comparació de text en dues columnes paral·leles.
-						</li>
-						<li>
-						   <a href="https://capitalizemytitle.com/tools/column-to-comma-separated-list/" target="_blank" style="text-decoration:underline; font-weight: bold;">Online Comma Separator</a>:
-						   Conversió de columnes de text a llista de comes separades (per a SQL).
-						</li>
-                    </ul>
-                </div>
+				<script src="enllacos.js"></script>
+                
+                <script>
+                    const contenidor = document.getElementById('contenidor-enllacos');
 
-                <div style="margin-bottom: 25px;">
-                    <h2 style="font-size: 1.2em; border-bottom: 1px dotted #999; padding-bottom: 5px; margin-bottom: 10px;">Validadors de dades</h2>
-                    <ul style="list-style-type: square; padding-left: 20px; line-height: 1.8;">
-                        <li>
-                            <a href="https://www.ibancalculator.com/" target="_blank" style="text-decoration: underline; font-weight: bold;">IBAN Calculator</a>: 
-                            Validació de comptes IBAN i codis bancaris BIC/SWIFT.
-                        </li>
-                        <li>
-                            <a href="https://ec.europa.eu/taxation_customs/vies/#/vat-validation" target="_blank" style="text-decoration: underline; font-weight: bold;">VIES Validator (European Comission)</a>: 
-                            Validació de CIF d'empreses intracomunitàries al sistema VIES.
-                        </li>
-						<li>
-                            <a href="https://www.letranif.com/" target="_blank" style="text-decoration: underline; font-weight: bold;">Letra NIF</a>: 
-                            Validació de números i lletres de NIF/DNI/NIE/CIF.
-                        </li>
-						<li>
-                            <a href="https://www.empresia.es/" target="_blank" style="text-decoration: underline; font-weight: bold;">Empresia</a>: 
-                            Obtenció de dades fiscals i mercantils d'empreses.
-                        </li>
-						<li>
-                            <a href="https://www.codigospostales.com/mapfus.html" target="_blank" style="text-decoration: underline; font-weight: bold;">Códigos Postales</a>: 
-                            Consulta de delimitacions de codis postals.
-                        </li>
-                    </ul>
-                </div>
+                    dadesEnllacos.forEach(grup => {
+                        // Creem el div de la categoria amb el mateix marge
+                        const divGrup = document.createElement('div');
+                        divGrup.style.marginBottom = "25px";
 
+                        // Creem l'H2 amb els teus estils
+                        const titol = document.createElement('h2');
+                        titol.style.cssText = "font-size: 1.2em; border-bottom: 1px dotted #999; padding-bottom: 5px; margin-bottom: 10px;";
+                        titol.textContent = grup.categoria;
+                        divGrup.appendChild(titol);
+
+                        // Creem la llista ul
+                        const llista = document.createElement('ul');
+                        llista.style.cssText = "list-style-type: square; padding-left: 20px; line-height: 1.8;";
+
+                        // Creem els elements li i els enllaços
+                        grup.enllacos.forEach(enllac => {
+                            const li = document.createElement('li');
+                            
+                            const a = document.createElement('a');
+                            a.href = enllac.url;
+                            a.target = "_blank";
+                            a.style.cssText = "text-decoration: underline; font-weight: bold;";
+                            a.textContent = enllac.titol;
+
+                            li.appendChild(a);
+                            // Afegim els dos punts i la descripció al costat de l'enllaç
+                            li.appendChild(document.createTextNode(": " + enllac.descripcio));
+
+                            llista.appendChild(li);
+                        });
+
+                        divGrup.appendChild(llista);
+                        contenidor.appendChild(divGrup);
+                    });
+                </script>
+				
             </div>
         </div>
     </div>
