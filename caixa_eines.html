@@ -275,13 +275,19 @@
             <button class="tab-btn" data-text="Extractor Dades" onclick="switchTab('tab-extractor', this)">Extractor Dades</button>
         </div>
         
-        <div style="padding-bottom: 5px; padding-right: 10px; display: flex; align-items: center; gap: 10px; white-space: nowrap;">
-            <label for="format-global" style="margin: 0; font-weight: bold; white-space: nowrap;">Format numèric:</label>
-            <select id="format-global" class="input-verd" style="width: auto; padding: 4px;" onchange="aplicarFormatGlobal()">
-                <option value="dos_decimals_eur">Dos decimals (1.234,56)</option>
-				<option value="dos_decimals_eng">Dos decimals (1,234.56)</option>
-                <option value="general">General</option>
-            </select>
+        <div style="padding-bottom: 5px; padding-right: 10px; display: flex; flex-direction: column; align-items: flex-end; gap: 6px;">
+            <div style="font-size: 10px; text-align: right; line-height: 1.2;">
+                Creat per David Vidal Viladoms + Gemini<br>
+                Versió 260326
+            </div>
+            <div style="display: flex; align-items: center; gap: 10px; white-space: nowrap;">
+                <label for="format-global" style="margin: 0; font-weight: bold; white-space: nowrap;">Format numèric:</label>
+                <select id="format-global" class="input-verd" style="width: auto; padding: 4px;" onchange="aplicarFormatGlobal()">
+                    <option value="dos_decimals_eur">Dos decimals (1.234,56)</option>
+                    <option value="dos_decimals_eng">Dos decimals (1,234.56)</option>
+                    <option value="general">General</option>
+                </select>
+            </div>
         </div>
     </div>
 
