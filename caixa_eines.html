@@ -101,6 +101,22 @@
                 alert('Error al copiar: ', err);
             });
         }
+		
+        function copyReemplacColumn() {
+            const tbody = document.getElementById('reemplac-body');
+            let textToCopy = "";
+            for (let i = 0; i < tbody.rows.length; i++) {
+                textToCopy += tbody.rows[i].cells[0].innerText + "\n";
+            }
+            navigator.clipboard.writeText(textToCopy).then(function() {
+                const btn = document.getElementById('btn-copia-reemplac');
+                const originalText = btn.innerText;
+                btn.innerText = "Copiat";
+                setTimeout(() => { btn.innerText = originalText; }, 1000);
+            }, function(err) {
+                alert('Error al copiar: ', err);
+            });
+        }
     </script>
 
     <style>
@@ -266,10 +282,11 @@
 	<div class="tabs-nav" style="display: flex; justify-content: space-between; align-items: flex-end;">
         <div style="display: flex; flex-wrap: wrap; gap: 2px;">
             <button class="tab-btn active" data-text="Enllaços Eines" onclick="switchTab('tab-enllacos', this)">Enllaços Eines</button>
-			<button class="tab-btn" data-text="Calculadora Factures" onclick="switchTab('tab-calc-factures', this)">Calculadora Factures</button>
+            <button class="tab-btn" data-text="Calculadora Factures" onclick="switchTab('tab-calc-factures', this)">Calculadora Factures</button>
             <button class="tab-btn" data-text="Distribució Costos" onclick="switchTab('tab-distribucio', this)">Distribució Costos</button>
+            <button class="tab-btn" data-text="Cercador Combinacions" onclick="switchTab('tab-cercador', this)">Cercador Combinacions</button>
             <button class="tab-btn" data-text="Agrupador Imports" onclick="switchTab('tab-agrup-imports', this)">Agrupador Imports</button>
-			<button class="tab-btn" data-text="Cercador Combinacions" onclick="switchTab('tab-cercador', this)">Cercador Combinacions</button>
+            <button class="tab-btn" data-text="Reemplaçador Caràcters" onclick="switchTab('tab-reemplacador', this)">Reemplaçador Caràcters</button>
             <button class="tab-btn" data-text="Validador DNI" onclick="switchTab('tab-validador', this)">Validador DNI</button>
             <button class="tab-btn" data-text="Comparador Arxius" onclick="switchTab('tab-llistador', this)">Comparador Arxius</button>
             <button class="tab-btn" data-text="Extractor Dades" onclick="switchTab('tab-extractor', this)">Extractor Dades</button>
@@ -278,7 +295,7 @@
         <div style="padding-bottom: 5px; padding-right: 10px; display: flex; flex-direction: column; align-items: flex-end; gap: 6px;">
             <div style="font-size: 10px; text-align: right; line-height: 1.2;">
                 Creat per David Vidal Viladoms + Gemini<br>
-                Versió 260327
+                Versió 260403
             </div>
             <div style="display: flex; align-items: center; gap: 10px; white-space: nowrap;">
                 <label for="format-global" style="margin: 0; font-weight: bold; white-space: nowrap;">Format numèric:</label>
@@ -412,6 +429,59 @@
         </div>
     </div>
 
+	<div id="tab-reemplacador" class="tab-content">
+        <div class="tool-container">
+            <div class="card">
+                <h1>Reemplaçador de Caràcters</h1>
+                
+                <div style="margin-bottom: 20px;">
+                    <div style="display: flex; justify-content: flex-start; align-items: center; gap: 20px; padding-bottom: 10px; margin-bottom: 5px;">
+                        <span style="font-weight: bold; font-size: 13px;">Regles de reemplaçament:</span>
+                        <button py-click="reemplac_afegir_linia" class="btn-action-small btn-add">+ Afegeix Regla</button>
+                    </div>
+                    
+                    <div id="reemplac-rules-container">
+                        </div>
+                </div>
+
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+                    
+                    <div>
+                        <div class="input-group">
+                            <label for="reemplac-input">Enganxa el text original (una línia per xifra/element):</label>
+                            <textarea id="reemplac-input" class="input-verd" style="height: 300px;" placeholder="Ex:&#10;Dada 1,00&#10;Dada 2,00" py-input="processar_reemplac"></textarea>
+                        </div>
+                    </div>
+
+                    <div>
+                        <label>Resultat:</label>
+                        <div class="table-wrapper" style="height: 300px; overflow-y: auto; margin-top: 0; border: 2px solid; border-color: #666 #fff #fff #666;">
+                            <table id="reemplac-table" class="data-table">
+                                <thead>
+                                    <tr>
+                                        <th>
+                                            <div class="th-content" style="display: flex; justify-content: space-between; align-items: center;">
+                                                <span>Text Modificat</span>
+                                                <div style="display: flex; gap: 5px;">
+                                                    <button py-click="exportar_csv_reemplac" class="btn-mini-copy" title="Baixa en CSV">Baixa en format .csv</button>
+                                                    <button id="btn-copia-reemplac" class="btn-mini-copy" onclick="copyReemplacColumn()" title="Copia aquesta columna">Copia</button>
+                                                </div>
+                                            </div>
+                                        </th>
+                                    </tr>
+                                </thead>
+                                <tbody id="reemplac-body">
+                                    <tr><td style="text-align: center; color: #666;">Escriu o enganxa dades a l'esquerra per començar</td></tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
 	<div id="tab-agrup-imports" class="tab-content">
 		<div class="tool-container">
 			<div class="card">
@@ -524,16 +594,19 @@
                     <div class="header-res">
                         <h3 style="margin-right: 20px; margin-top:0;">Contingut</h3>
                         <div class="right-controls">
-                            <div class="checks-group">
+                            <div class="checks-group" style="min-width: 360px;">
                                 <div class="checks-row">
-                                    <label class="checkbox-container"><input type="checkbox" id="show-folders" py-change="render_llista" checked> Mostra subcarpetes</label>
-                                    <label class="checkbox-container"><input type="checkbox" id="include-content" py-change="render_llista"> Inclou contingut subcarpetes</label>
+                                    <label class="checkbox-container" style="white-space: nowrap;"><input type="checkbox" id="show-folders" py-change="render_llista" checked> Mostra subcarpetes</label>
+                                    <label class="checkbox-container" style="white-space: nowrap;";><input type="checkbox" id="include-content" py-change="render_llista"> Inclou contingut subcarpetes</label>
                                 </div>
                                 <div class="checks-row">
-                                    <label class="checkbox-container"><input type="checkbox" id="remove-ext" py-change="render_llista"> Elimina l'extensió dels arxius</label>
+                                    <label class="checkbox-container" style="white-space: nowrap;"><input type="checkbox" id="remove-ext" py-change="render_llista"> Elimina les extensions</label>
                                 </div>
                             </div>
-                            <button py-click="exportar_txt_llistador" class="btn-secondary">Baixa el llistat (.txt)</button>
+							<div style="display: flex; flex-direction: column; gap: 5px;">
+                                <button py-click="exportar_csv_llistador" class="btn-secondary" style="margin: 0;">Baixa en format .csv</button>
+                                <button py-click="exportar_txt_llistador" class="btn-secondary" style="margin: 0;">Baixa en format .txt</button>
+                            </div>
                         </div>
                     </div>
                     <ul id="llista-arxius" class="file-list"></ul>
@@ -547,7 +620,7 @@
                             <input type="file" id="folder-input-b" webkitdirectory directory multiple style="display:none;"/>
                             <button class="btn-folder" onclick="document.getElementById('folder-input-b').click()">Tria la carpeta a comparar</button>
                         </div>
-                        <div class="control-group"><button id="compare-btn" py-click="processar_comparacio" class="btn-main" style="margin-top:0; height: 48px;">Llegeix i compara</button></div>
+                        <div class="control-group"><button id="compare-btn" py-click="processar_comparacio" class="btn-main" style="margin-top:0; height: 48px;">Llegeix els arxius i compara</button></div>
                     </div>
                     <div id="folder-status-b" class="folder-display">Cap carpeta comparada seleccionada</div>
 
@@ -555,32 +628,38 @@
                         <div class="header-res">
                             <h3 style="margin-right: 20px; margin-top:0;">Contingut comparat</h3>
                             <div class="right-controls">
-                                <div class="checks-group">
+                                <div class="checks-group" style="min-width: 360px;">
                                     <div class="checks-row">
-                                        <label class="checkbox-container"><input type="checkbox" id="comp-show-folders" py-change="render_comparacio" checked> Mostra subcarpetes</label>
-                                        <label class="checkbox-container"><input type="checkbox" id="comp-include-content" py-change="render_comparacio"> Inclou contingut</label>
+                                        <label class="checkbox-container" style="white-space: nowrap;"><input type="checkbox" id="comp-show-folders" py-change="render_comparacio" checked> Mostra subcarpetes</label>
+                                        <label class="checkbox-container" style="white-space: nowrap;"><input type="checkbox" id="comp-include-content" py-change="render_comparacio"> Inclou contingut subcarpetes</label>
                                     </div>
-                                    <div class="checks-row">
-                                        <select id="diff-filter-select" class="custom-select" py-change="render_comparacio">
+                                    <div class="checks-row" style="align-items: center; width: 100%;">
+                                        <label class="checkbox-container" style="white-space: nowrap;"><input type="checkbox" id="comp-remove-ext" py-change="render_comparacio" > Elimina les extensions</label>
+                                        <select id="diff-filter-select" class="custom-select" py-change="render_comparacio" style="margin-left: auto;">
                                             <option value="all">Totes les diferències</option>
+                                            <option value="matches">Totes les coincidències</option>
                                             <option value="missing">Només a la Inicial</option>
                                             <option value="new">Només a la Comparada</option>
                                         </select>
-                                        <label class="checkbox-container"><input type="checkbox" id="comp-remove-ext" py-change="render_comparacio"> Elimina extensió</label>
                                     </div>
                                 </div>
-                                <button py-click="exportar_dif_txt" class="btn-secondary">Baixa diferències (.txt)</button>
+								<div style="display: flex; flex-direction: column; gap: 5px;">
+                                    <button py-click="exportar_dif_csv" class="btn-secondary" style="margin: 0;">Baixa en format .csv</button>
+                                    <button py-click="exportar_dif_txt" class="btn-secondary" style="margin: 0;">Baixa en format .txt</button>
+                                </div>
                             </div>
                         </div>
                         <div class="grid-3-col">
                             <div><div class="col-header">Carpeta Inicial</div><ul id="list-col-a" class="file-list" style="height: 300px;"></ul></div>
                             <div><div class="col-header">Carpeta Comparada</div><ul id="list-col-b" class="file-list" style="height: 300px;"></ul></div>
-                            <div><div class="col-header">Diferències</div><ul id="list-col-diff" class="file-list" style="height: 300px;"></ul></div>
+                            <div><div id="titol-resultats" class="col-header">Totes les diferències</div><ul id="list-col-diff" class="file-list" style="height: 300px;"></ul></div>
                         </div>
+                        
                         <div id="footer-count-compare" style="display: flex; justify-content: space-between; align-items: center; margin-top: 15px; border-top: 1px dotted #999; padding-top: 10px;">
-                            <div style="display: flex; gap: 15px;">
-                                <div><span style="font-weight: bold; margin-right: 5px;">[+]</span> A la Comparada i no a la Inicial</div>
-                                <div><span style="font-weight: bold; margin-right: 5px;">[-]</span> A la Inicial i no a la Comparada</div>
+                            <div style="display: flex; gap: 15px; font-size: 11px;">
+                                <div><span style="font-weight: bold; margin-right: 3px;">[+]</span> A Comparada i no a Inicial</div>
+                                <div><span style="font-weight: bold; margin-right: 3px;">[-]</span> A Inicial i no a Comparada</div>
+                                <div><span style="font-weight: bold; margin-right: 3px;">[=]</span> Coincidents</div>
                             </div>
                             <div id="compare-total-text" style="font-weight: bold;"></div>
                         </div>
@@ -1050,7 +1129,7 @@
             <h3 style="margin:0;">Resultats</h3>
             <div class="right-controls">
                 <label class="checkbox-container"><input type="checkbox" id="filter-errors" py-change="render_taula" {chk_attr}> Mostra només errors</label>
-                <button py-click="exportar_txt_dni" class="btn-secondary">Baixa llistat (.txt)</button>
+                <button py-click="exportar_txt_dni" class="btn-secondary">Baixa en format .txt</button>
             </div>
         </div>
         """
@@ -1079,6 +1158,7 @@
     # ==========================================
     CACHE_RUTES_A, CACHE_RUTES_B = [], []
     CACHE_ITEMS_A_FINAL, CACHE_ITEMS_B_FINAL, CACHE_DIFFS_FINAL = [], [], []
+    CACHE_ITEMS_A_COMPARE_FINAL = []
 
     def actualitzar_status_carpeta(event):
         input_el = document.querySelector("#folder-input")
@@ -1187,13 +1267,23 @@
         document.querySelector("#footer-count").innerText = f"Total: {total} elements ({num_arxius} arxius, {num_carpetes} subcarpetes)."
 
     def render_comparacio(event):
-        global CACHE_RUTES_A, CACHE_RUTES_B, CACHE_ITEMS_B_FINAL, CACHE_DIFFS_FINAL
+        global CACHE_RUTES_A, CACHE_RUTES_B, CACHE_ITEMS_B_FINAL, CACHE_DIFFS_FINAL, CACHE_ITEMS_A_COMPARE_FINAL
         if not CACHE_RUTES_A or not CACHE_RUTES_B: return
         c_show = document.querySelector("#comp-show-folders").checked
         c_content = document.querySelector("#comp-include-content").checked
         c_remove = document.querySelector("#comp-remove-ext").checked
         filter_mode = document.querySelector("#diff-filter-select").value
+        
+        noms_titols = {
+            "all": "Totes les diferències",
+            "missing": "Només a la Inicial",
+            "new": "Només a la Comparada",
+            "matches": "Totes les coincidències"
+        }
+        document.querySelector("#titol-resultats").innerText = noms_titols.get(filter_mode, "Resultats")
+        
         items_a = obtenir_items_filtrats(CACHE_RUTES_A, c_show, c_content, c_remove)
+        CACHE_ITEMS_A_COMPARE_FINAL = items_a
         items_b = obtenir_items_filtrats(CACHE_RUTES_B, c_show, c_content, c_remove)
         CACHE_ITEMS_B_FINAL = items_b
         
@@ -1215,8 +1305,12 @@
 
         set_a = {f"{x['nom']}|{x['tipus']}" for x in items_a}
         set_b = {f"{x['nom']}|{x['tipus']}" for x in items_b}
+        
+        # Matemàtiques de conjunts
         only_in_a = set_a - set_b
         only_in_b = set_b - set_a
+        in_both = set_a & set_b
+        
         diffs_list = []
         for raw in only_in_a:
             if filter_mode in ["all", "missing"]:
@@ -1226,23 +1320,33 @@
             if filter_mode in ["all", "new"]:
                 nom, tipus = raw.split("|")
                 diffs_list.append({"nom": nom, "tipus": tipus, "status": "new"})
+        for raw in in_both:
+            if filter_mode == "matches":
+                nom, tipus = raw.split("|")
+                diffs_list.append({"nom": nom, "tipus": tipus, "status": "match"})
+                
         diffs_list.sort(key=lambda x: x["nom"].lower())
         CACHE_DIFFS_FINAL = diffs_list
 
         ul_diff = document.querySelector("#list-col-diff")
         ul_diff.innerHTML = ""
+        
         if not diffs_list:
             li = document.createElement("li")
-            li.innerText = "Tot igual" if filter_mode == "all" else "Cap diferència amb aquest filtre"
+            li.innerText = "Tots els arxius són coincidents." if filter_mode == "all" else "Cap arxiu coincident."
             ul_diff.appendChild(li)
+            
         for item in diffs_list:
             li = document.createElement("li")
-            prefix = "[-] " if item["status"] == "missing" else "[+] "
+            if item["status"] == "missing": prefix = "[-] "
+            elif item["status"] == "new": prefix = "[+] "
+            else: prefix = "[=] "
             li.innerText = prefix + item["nom"]
             li.className = "icon-folder" if item["tipus"] == "folder" else "icon-file"
             ul_diff.appendChild(li)
 
-        document.querySelector("#compare-total-text").innerText = f"Comparació: {len(diffs_list)} diferències trobades."
+        tipus_text = "coincidències" if filter_mode == "matches" else "diferències"
+        document.querySelector("#compare-total-text").innerText = f"Comparació: {len(diffs_list)} {tipus_text} trobades."
 
     def exportar_txt_llistador(event):
         global CACHE_ITEMS_A_FINAL
@@ -1259,6 +1363,59 @@
                 text_content += f"{item['nom']}\n"
         ts = datetime.datetime.now().strftime("%Y%m%d_%H%M")
         downloadFile(f"diferencies_{ts}.txt", text_content)
+        
+    def exportar_csv_llistador(event):
+        global CACHE_ITEMS_A_FINAL
+        if not CACHE_ITEMS_A_FINAL: return
+        
+        output = io.StringIO(newline='')
+        output.write('\ufeff') # BOM per excel
+        writer = csv.writer(output, delimiter=';')
+        
+        writer.writerow(["Carpeta Inicial"])
+        for item in CACHE_ITEMS_A_FINAL:
+            writer.writerow([item['nom']])
+            
+        ts = datetime.datetime.now().strftime("%Y%m%d_%H%M")
+        downloadFile(f"llistat_arxius_{ts}.csv", output.getvalue())
+
+    def exportar_dif_csv(event):
+        global CACHE_ITEMS_A_FINAL, CACHE_ITEMS_B_FINAL, CACHE_DIFFS_FINAL
+        
+        # Extraiem només els noms (nets, sense [Arxiu], etc.)
+        col_a = [item['nom'] for item in CACHE_ITEMS_A_COMPARE_FINAL] if CACHE_ITEMS_A_COMPARE_FINAL else []
+        col_b = [item['nom'] for item in CACHE_ITEMS_B_FINAL] if CACHE_ITEMS_B_FINAL else []
+        col_diff = [item['nom'] for item in CACHE_DIFFS_FINAL] if CACHE_DIFFS_FINAL else []
+        
+        # Trobem la columna més llarga per iterar
+        max_len = max(len(col_a), len(col_b), len(col_diff))
+        if max_len == 0: return
+        
+        output = io.StringIO(newline='')
+        output.write('\ufeff')
+        writer = csv.writer(output, delimiter=';')
+        
+        filter_mode = document.querySelector("#diff-filter-select").value
+        noms_titols = {
+            "all": "Totes les diferències", 
+            "missing": "Només a la Inicial", 
+            "new": "Només a la Comparada", 
+            "matches": "Totes les coincidències"
+        }
+        titol_col_3 = noms_titols.get(filter_mode, "Resultats")
+        
+        # Capçaleres de les columnes
+        writer.writerow(["Carpeta Inicial", "Carpeta Comparada", titol_col_3])
+        
+        # Omplim les files emparellant les 3 llistes
+        for i in range(max_len):
+            val_a = col_a[i] if i < len(col_a) else ""
+            val_b = col_b[i] if i < len(col_b) else ""
+            val_diff = col_diff[i] if i < len(col_diff) else ""
+            writer.writerow([val_a, val_b, val_diff])
+            
+        ts = datetime.datetime.now().strftime("%Y%m%d_%H%M")
+        downloadFile(f"comparacio_arxius_{ts}.csv", output.getvalue())
 
     # ==========================================
     # TOOL 4: TEXT A COLUMNES (GEOMETRIA + AUTOMÀTIC + INTERACTIU)
@@ -1631,7 +1788,7 @@
                 renderitzar_taula(CACHE_DATA_FINAL)
 
     # --- RENDERITZACIÓ I NETEJA AUTOMÀTICA ---
-def renderitzar_taula(data):
+    def renderitzar_taula(data):
         global CELLA_SELECCIONADA
         table = document.querySelector("#result-table")
         table.innerHTML = ""
@@ -1709,7 +1866,7 @@ def renderitzar_taula(data):
         table.appendChild(tbody)
         document.querySelector("#row-count").innerText = f"Total: {len(data)} files."
 
-def exportar_csv(event):
+    def exportar_csv(event):
         global CACHE_DATA_FINAL
         if not CACHE_DATA_FINAL: return
         
@@ -1828,6 +1985,101 @@ def exportar_csv(event):
             
         document.querySelector("#calc-col-summary-body").innerHTML = html_resum
         document.querySelector("#calc-col-total-general").innerHTML = formatar_num(total_general / 100)
+
+    # ==========================================
+    # TOOL 9: REEMPLAÇADOR DE CARÀCTERS
+    # ==========================================
+    CACHE_REEMPLAC_FINAL = []
+
+    def reemplac_eliminar_linia(event):
+        event.target.closest(".reemplac-rule-row").remove()
+        processar_reemplac(None)
+
+    def reemplac_afegir_linia(event):
+        container = document.querySelector("#reemplac-rules-container")
+        div = document.createElement("div")
+        div.className = "reemplac-rule-row"
+        div.style.cssText = "display: flex; align-items: center; gap: 10px; margin-bottom: 5px;"
+        
+        num_linies = len(container.querySelectorAll(".reemplac-rule-row"))
+        
+        if num_linies == 0:
+            btn_html = '<div style="width: 25px;"></div>'
+        else:
+            btn_html = '<button class="btn-del" title="Elimina regla" style="width: 25px; height: 25px; padding: 0; margin: 0; line-height: 1;">X</button>'
+        
+        div.innerHTML = f"""
+            <label style="margin: 0; white-space: nowrap;">Reemplaça els caràcters...</label>
+            <input type="text" class="input-verd reemplac-find-input" style="width: 150px; margin: 0;">
+            <label style="margin: 0; white-space: nowrap;">per aquests:</label>
+            <input type="text" class="input-verd reemplac-replace-input" style="width: 150px; margin: 0;">
+            {btn_html}
+        """
+        
+        if num_linies > 0:
+            div.querySelector(".btn-del").onclick = reemplac_eliminar_linia
+            
+        input_find = div.querySelector(".reemplac-find-input")
+        input_replace = div.querySelector(".reemplac-replace-input")
+        
+        add_event_listener(input_find, "input", processar_reemplac)
+        add_event_listener(input_replace, "input", processar_reemplac)
+        
+        container.appendChild(div)
+
+    def processar_reemplac(event):
+        global CACHE_REEMPLAC_FINAL
+        text_origen = document.querySelector("#reemplac-input").value
+        tbody = document.querySelector("#reemplac-body")
+        
+        CACHE_REEMPLAC_FINAL = [] # Buidem la memòria a cada canvi
+        
+        if not text_origen.strip():
+            tbody.innerHTML = '<tr><td style="text-align: center; color: #666;">Escriu o enganxa dades a l\'esquerra per començar</td></tr>'
+            return
+            
+        regles_find = document.querySelectorAll(".reemplac-find-input")
+        regles_replace = document.querySelectorAll(".reemplac-replace-input")
+        
+        parelles = []
+        for i in range(len(regles_find)):
+            cerca = regles_find[i].value
+            substitut = regles_replace[i].value
+            if cerca:
+                parelles.append((cerca, substitut))
+        
+        linies = text_origen.split('\n')
+        html_rows = ""
+        
+        for linia in linies:
+            linia_mod = linia
+            for cerca, substitut in parelles:
+                linia_mod = linia_mod.replace(cerca, substitut)
+                
+            # Guardem el resultat net a la memòria cau pel CSV
+            CACHE_REEMPLAC_FINAL.append([linia_mod])
+                
+            linia_mod_html = linia_mod.replace("<", "&lt;").replace(">", "&gt;")
+            html_rows += f"<tr><td>{linia_mod_html}</td></tr>"
+            
+        tbody.innerHTML = html_rows
+
+    def exportar_csv_reemplac(event):
+        global CACHE_REEMPLAC_FINAL
+        if not CACHE_REEMPLAC_FINAL: return
+        
+        output = io.StringIO(newline='') 
+        output.write('\ufeff') # BOM perquè l'Excel llegeixi bé els accents i caràcters especials
+        
+        writer = csv.writer(output, delimiter=';')
+        for row in CACHE_REEMPLAC_FINAL: 
+            writer.writerow(row)
+            
+        csv_content = output.getvalue()
+        ts = datetime.datetime.now().strftime("%Y%m%d_%H%M")
+        downloadFile(f"text_reemplacat_{ts}.csv", csv_content)
+
+    reemplac_afegir_linia(None)
 
     # ==========================================
     # FINALITZACIÓ CÀRREGA PYSCRIPT
