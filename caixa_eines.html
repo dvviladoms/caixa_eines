@@ -163,8 +163,31 @@
         .res-row, .res-row-sub { display: flex; justify-content: space-between; border-bottom: 1px dotted #999; padding: 2px 0; }
         .res-row:last-child { font-weight: bold; border-top: 2px solid #666; border-bottom: none; margin-top: 5px; padding-top: 5px;}
 
+		/* Contenidors de la capçalera (escriptori) */
+        .css-tabs-nav { display: flex; justify-content: space-between; align-items: flex-end; }
+        .css-tabs-container { display: flex; flex-wrap: wrap; gap: 2px; }
+        .css-info-container { padding-bottom: 5px; padding-right: 10px; display: flex; flex-direction: column; align-items: flex-end; gap: 6px; text-align: right; }
+
+        /* Ajustos per a mòbils */
         @media (max-width: 768px) {
             .grid-3-col { grid-template-columns: 1fr; }
+            
+            /* Reorganitzem la capçalera */
+            .css-tabs-nav { flex-direction: column; align-items: stretch; gap: 15px; }
+            
+            /* Pestanyes en línia i desplaçables horitzontalment (swipe) */
+            .css-tabs-container { 
+                flex-wrap: nowrap; 
+                overflow-x: auto; 
+                padding-bottom: 2px; 
+                -webkit-overflow-scrolling: touch; /* Scroll suau a iOS */
+            }
+            /* Amaguem la barra de desplaçament estèticament però mantenim la funció de lliscar */
+            .css-tabs-container::-webkit-scrollbar { display: none; }
+            .css-tabs-container { -ms-overflow-style: none; scrollbar-width: none; }
+            
+            /* Centrem la informació a sota de les pestanyes */
+            .css-info-container { align-items: center; text-align: center; padding-right: 0; }
         }
 		
 		/* PANTALLA DE CÀRREGA */
@@ -242,8 +265,8 @@
         <div class="loading-text">Carregant la caixa d'eines... Si us plau, espera.</div>
     </div>
 
-	<div class="tabs-nav" style="display: flex; justify-content: space-between; align-items: flex-end;">
-        <div style="display: flex; flex-wrap: wrap; gap: 2px;">
+	<div class="tabs-nav css-tabs-nav">
+        <div class="css-tabs-container">
             <button class="tab-btn active" data-text="Enllaços Eines" onclick="switchTab('tab-enllacos', this)">Enllaços Eines</button>
             <button class="tab-btn" data-text="Calculadora Factures" onclick="switchTab('tab-calc-factures', this)">Calculadora Factures</button>
             <button class="tab-btn" data-text="Distribució Costos" onclick="switchTab('tab-distribucio', this)">Distribució Costos</button>
@@ -254,12 +277,12 @@
             <button class="tab-btn" data-text="Comparador Arxius" onclick="switchTab('tab-llistador', this)">Comparador Arxius</button>
         </div>
         
-        <div style="padding-bottom: 5px; padding-right: 10px; display: flex; flex-direction: column; align-items: flex-end; gap: 6px;">
-            <div style="font-size: 10px; text-align: right; line-height: 1.2;">
+        <div class="css-info-container">
+            <div style="font-size: 10px; line-height: 1.2;">
                 Creat per David Vidal Viladoms + Gemini<br>
                 Versió 260410
             </div>
-            <div style="display: flex; align-items: center; gap: 10px; white-space: nowrap;">
+            <div style="display: flex; align-items: center; gap: 10px; white-space: nowrap; justify-content: center;">
                 <label for="format-global" style="margin: 0; font-weight: bold; white-space: nowrap;">Format numèric:</label>
                 <select id="format-global" class="input-verd" style="width: auto; padding: 4px;" onchange="aplicarFormatGlobal()">
                     <option value="dos_decimals_eur">Dos decimals (1.234,56)</option>
@@ -410,7 +433,7 @@
                     
                     <div>
                         <div class="input-group">
-                            <label for="reemplac-input">Enganxa el text original (una línia per xifra/element):</label>
+                            <label for="reemplac-input">Enganxa el text original (una línia per número/element):</label>
                             <textarea id="reemplac-input" class="input-verd" style="height: 300px;" placeholder="Ex:&#10;Dada 1,00&#10;Dada 2,00" py-input="processar_reemplac"></textarea>
                         </div>
                     </div>
@@ -452,7 +475,7 @@
 				<div style="display: grid; grid-template-columns: 1fr 2fr; gap: 20px;">
 					<div>
 						<div class="input-group">
-							<label for="calc-col-input">Enganxa les xifres (una per línia):</label>
+							<label for="calc-col-input">Enganxa els números (un per línia):</label>
 							<textarea id="calc-col-input" class="input-verd" style="height: 300px;" placeholder="Ex:&#10;150.50&#10;24,00&#10;-15,20"></textarea>
 						</div>
 						<button py-click="processar_columnes" class="btn-main">Llegeix els Imports</button>
@@ -472,7 +495,7 @@
 							<table id="calc-col-table" class="data-table">
 								<thead>
 									<tr>
-										<th style="width: 40%;">Xifra</th>
+										<th style="width: 40%;">Número</th>
 										<th style="width: 60%;">Etiqueta</th>
 									</tr>
 								</thead>
@@ -1310,7 +1333,7 @@
             document.querySelector("#calc-col-summary-box").style.display = "block"
             actualitzar_resum_columnes(None)
         else:
-            tbody.innerHTML = '<tr><td colspan="2" style="text-align: center;">No s\'ha detectat cap xifra vàlida.</td></tr>'
+            tbody.innerHTML = '<tr><td colspan="2" style="text-align: center;">No s\'ha detectat cap número vàlid.</td></tr>'
 
     def actualitzar_resum_columnes(event):
         files = document.querySelectorAll("#calc-col-body tr")
