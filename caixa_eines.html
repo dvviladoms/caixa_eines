@@ -187,7 +187,7 @@
             .css-tabs-container { -ms-overflow-style: none; scrollbar-width: none; }
             
             /* Centrem la informació a sota de les pestanyes */
-            .css-info-container { align-items: center; text-align: center; padding-right: 0; }
+            .css-info-container { align-items: flex-end; text-align: right; padding-right: 10px; }
         }
 		
 		/* PANTALLA DE CÀRREGA */
@@ -1378,7 +1378,7 @@
         container = document.querySelector("#reemplac-rules-container")
         div = document.createElement("div")
         div.className = "reemplac-rule-row"
-        div.style.cssText = "display: flex; align-items: center; gap: 10px; margin-bottom: 5px;"
+        div.style.cssText = "display: flex; align-items: center; gap: 8px; margin-bottom: 5px; flex-wrap: wrap;"
         
         num_linies = len(container.querySelectorAll(".reemplac-rule-row"))
         
@@ -1388,10 +1388,10 @@
             btn_html = '<button class="btn-del" title="Elimina regla" style="width: 25px; height: 25px; padding: 0; margin: 0; line-height: 1;">X</button>'
         
         div.innerHTML = f"""
-            <label style="margin: 0; white-space: nowrap;">Reemplaça els caràcters...</label>
-            <input type="text" class="input-verd reemplac-find-input" style="width: 150px; margin: 0;">
-            <label style="margin: 0; white-space: nowrap;">per aquests:</label>
-            <input type="text" class="input-verd reemplac-replace-input" style="width: 150px; margin: 0;">
+            <label style="margin: 0; white-space: nowrap;">Reemplaça...</label>
+            <input type="text" class="input-verd reemplac-find-input" style="flex: 1; min-width:: 60px; margin: 0;">
+            <label style="margin: 0; white-space: nowrap;">per:</label>
+            <input type="text" class="input-verd reemplac-replace-input" style="flex: 1; min-width:: 60px; margin: 0;">
             {btn_html}
         """
         
