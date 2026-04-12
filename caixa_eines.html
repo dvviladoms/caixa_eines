@@ -280,7 +280,7 @@
         <div class="css-info-container">
             <div style="font-size: 10px; line-height: 1.2;">
                 Creat per David Vidal Viladoms + Gemini<br>
-                Versió 260410
+                Versió 1.1.14
             </div>
             <div style="display: flex; align-items: center; gap: 10px; white-space: nowrap; justify-content: center;">
                 <label for="format-global" style="margin: 0; font-weight: bold; white-space: nowrap;">Format numèric:</label>
@@ -433,8 +433,8 @@
                     
                     <div>
                         <div class="input-group">
-                            <label for="reemplac-input">Enganxa el text original (una línia per número/element):</label>
-                            <textarea id="reemplac-input" class="input-verd" style="height: 300px;" placeholder="Ex:&#10;Dada 1,00&#10;Dada 2,00" py-input="processar_reemplac"></textarea>
+                            <label for="reemplac-input">Enganxa el text original:</label>
+                            <textarea id="reemplac-input" class="input-verd" style="height: 300px;" placeholder="Ex:&#10;156,10&#10;52,60&#10;-56,40" py-input="processar_reemplac"></textarea>
                         </div>
                     </div>
 
@@ -475,7 +475,7 @@
 				<div style="display: grid; grid-template-columns: 1fr 2fr; gap: 20px;">
 					<div>
 						<div class="input-group">
-							<label for="calc-col-input">Enganxa els números (un per línia):</label>
+							<label for="calc-col-input">Enganxa els imports (un per línia):</label>
 							<textarea id="calc-col-input" class="input-verd" style="height: 300px;" placeholder="Ex:&#10;150.50&#10;24,00&#10;-15,20"></textarea>
 						</div>
 						<button py-click="processar_columnes" class="btn-main">Llegeix els Imports</button>
@@ -495,7 +495,7 @@
 							<table id="calc-col-table" class="data-table">
 								<thead>
 									<tr>
-										<th style="width: 40%;">Número</th>
+										<th style="width: 40%;">Import</th>
 										<th style="width: 60%;">Etiqueta</th>
 									</tr>
 								</thead>
