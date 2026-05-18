@@ -40,6 +40,52 @@
             document.getElementById(tabId).style.display = 'block';
             btnElement.classList.add('active');
         }
+		
+		// Funció per fer scroll horitzontal
+        function scrollTabs(desplacament) {
+            const container = document.getElementById('tabs-container');
+            container.scrollBy({ left: desplacament, behavior: 'smooth' });
+        }
+
+        // Funció que comprova si cal mostrar les fletxes
+        function comprovarFletxes() {
+            const container = document.getElementById('tabs-container');
+            if (!container) return;
+
+            const btnEsquerra = document.getElementById('scroll-left-btn');
+            const btnDreta = document.getElementById('scroll-right-btn');
+
+            // Hi ha desbordament si el contingut total és més ample que el contenidor visible
+            const teOverflow = container.scrollWidth > container.clientWidth;
+
+            if (teOverflow) {
+                // Si estem enganxats a l'esquerra, amaguem la fletxa esquerra
+                const alPrincipi = container.scrollLeft <= 0;
+                // Si estem enganxats a la dreta, amaguem la fletxa dreta (usem ceil pels decimals del zoom)
+                const alFinal = Math.ceil(container.scrollLeft + container.clientWidth) >= container.scrollWidth;
+
+                btnEsquerra.style.display = alPrincipi ? 'none' : 'block';
+                btnDreta.style.display = alFinal ? 'none' : 'block';
+            } else {
+                // Si caben totes perfectament, amaguem les dues fletxes
+                btnEsquerra.style.display = 'none';
+                btnDreta.style.display = 'none';
+            }
+        }
+
+        // Escoltem els esdeveniments per actualitzar les fletxes quan toqui
+        window.addEventListener('DOMContentLoaded', () => {
+            const container = document.getElementById('tabs-container');
+            if(container) {
+                // Quan l'usuari fa scroll manualment (ratolí o dits)
+                container.addEventListener('scroll', comprovarFletxes);
+            }
+            // Quan canvia la mida de la finestra o el zoom
+            window.addEventListener('resize', comprovarFletxes);
+            
+            // Donem temps que es renderitzi i fem la primera comprovació
+            setTimeout(comprovarFletxes, 100); 
+        });
 
         // --- Formatador Global ---
         function formatarNumeroGlobal(num, format) {
@@ -80,6 +126,16 @@
                 alert('Error al copiar: ', err);
             });
         }
+		// Funció per obrir la web com una finestra independent
+		function obrirFinestraApp() {
+			// Agafem l'URL actual
+			const urlActual = window.location.href;
+			// Definim els paràmetres de la nova finestra (sense barres d'eines)
+			const parametres = 'width=1050,height=800,menubar=no,toolbar=no,location=no,status=no,scrollbars=yes,resizable=yes';
+			
+			// Obrim la finestra
+			window.open(urlActual, '_blank', parametres);
+		}
     </script>
 
     <style>
@@ -167,6 +223,22 @@
         .css-tabs-nav { display: flex; justify-content: space-between; align-items: flex-end; }
         .css-tabs-container { display: flex; flex-wrap: wrap; gap: 2px; }
         .css-info-container { padding-bottom: 5px; padding-right: 10px; display: flex; flex-direction: column; align-items: flex-end; gap: 6px; text-align: right; }
+
+		/* --- Fletxes de desplaçament de pestanyes --- */
+        .scroll-arrow {
+            display: none; /* Amagades per defecte */
+            background-color: #ddd;
+            border: 2px solid;
+            border-color: #fff #666 #666 #fff;
+            border-bottom: none;
+            padding: 6px 10px;
+            cursor: pointer;
+            font-weight: bold;
+            z-index: 10;
+        }
+        .scroll-arrow:hover { background-color: #eee; }
+        .scroll-arrow:active { border-color: #666 #fff #fff #666; }
+        #tabs-container::-webkit-scrollbar { display: none; }
 
         /* Ajustos per a mòbils */
         @media (max-width: 768px) {
@@ -266,22 +338,29 @@
     </div>
 
 	<div class="tabs-nav css-tabs-nav">
-        <div class="css-tabs-container">
-            <button class="tab-btn active" data-text="Enllaços Eines" onclick="switchTab('tab-enllacos', this)">Enllaços Eines</button>
-            <button class="tab-btn" data-text="Calculadora Factures" onclick="switchTab('tab-calc-factures', this)">Calculadora Factures</button>
-            <button class="tab-btn" data-text="Distribució Costos" onclick="switchTab('tab-distribucio', this)">Distribució Costos</button>
-            <button class="tab-btn" data-text="Cercador Combinacions" onclick="switchTab('tab-cercador', this)">Cercador Combinacions</button>
-            <button class="tab-btn" data-text="Agrupador Imports" onclick="switchTab('tab-agrup-imports', this)">Agrupador Imports</button>
-            <button class="tab-btn" data-text="Reemplaçador Caràcters" onclick="switchTab('tab-reemplacador', this)">Reemplaçador Caràcters</button>
-            <button class="tab-btn" data-text="Validador DNI" onclick="switchTab('tab-validador', this)">Validador DNI</button>
-            <button class="tab-btn" data-text="Comparador Arxius" onclick="switchTab('tab-llistador', this)">Comparador Arxius</button>
+		<div style="display: flex; max-width: 100%; overflow: hidden;">
+			<button id="scroll-left-btn" class="scroll-arrow" onclick="scrollTabs(-200)">&#9664;</button>
+				<div class="css-tabs-container" id="tabs-container" style="flex-wrap: nowrap; overflow-x: auto; scrollbar-width: none; -ms-overflow-style: none;">
+					<button class="tab-btn active" data-text="Enllaços Eines" onclick="switchTab('tab-enllacos', this)">Enllaços Eines</button>
+					<button class="tab-btn" data-text="Calculadora Factures" onclick="switchTab('tab-calc-factures', this)">Calculadora Factures</button>
+					<button class="tab-btn" data-text="Distribució Costos" onclick="switchTab('tab-distribucio', this)">Distribució Costos</button>
+					<button class="tab-btn" data-text="Cercador Combinacions" onclick="switchTab('tab-cercador', this)">Cercador Combinacions</button>
+					<button class="tab-btn" data-text="Agrupador Imports" onclick="switchTab('tab-agrup-imports', this)">Agrupador Imports</button>
+					<button class="tab-btn" data-text="Reemplaçador Caràcters" onclick="switchTab('tab-reemplacador', this)">Reemplaçador Caràcters</button>
+					<button class="tab-btn" data-text="Validador DNI" onclick="switchTab('tab-validador', this)">Validador DNI</button>
+					<button class="tab-btn" data-text="Comparador Arxius" onclick="switchTab('tab-llistador', this)">Comparador Arxius</button>
+				</div>
+			<button id="scroll-right-btn" class="scroll-arrow" onclick="scrollTabs(200)">&#9654;</button>
         </div>
-        
+		
         <div class="css-info-container">
             <div style="font-size: 10px; line-height: 1.2;">
                 Creat per David Vidal Viladoms + Gemini<br>
-                Versió 1.1.14
-            </div>
+                Versió 1.1.15
+			</div>
+			<button class="btn-secondary" onclick="obrirFinestraApp()" style="margin-bottom: 5px; cursor: pointer; font-size: 10px;">
+			Obrir finestra
+			</button>
             <div style="display: flex; align-items: center; gap: 10px; white-space: nowrap; justify-content: center;">
                 <label for="format-global" style="margin: 0; font-weight: bold; white-space: nowrap;">Format numèric:</label>
                 <select id="format-global" class="input-verd" style="width: auto; padding: 4px;" onchange="aplicarFormatGlobal()">
@@ -289,7 +368,7 @@
                     <option value="dos_decimals_eng">Dos decimals (1,234.56)</option>
                     <option value="general">General</option>
                 </select>
-            </div>
+				</div>
         </div>
     </div>
 
