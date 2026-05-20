@@ -222,7 +222,7 @@
 		/* Contenidors de la capçalera (escriptori) */
         .css-tabs-nav { display: flex; justify-content: space-between; align-items: flex-end; }
         .css-tabs-container { display: flex; flex-wrap: wrap; gap: 2px; }
-        .css-info-container { padding-bottom: 5px; padding-right: 10px; display: flex; flex-direction: column; align-items: flex-end; gap: 6px; text-align: right; }
+        .css-info-container { padding-bottom: 5px; padding-right: 10px; display: flex; flex-direction: column; align-items: flex-end; gap: 6px; text-align: right; margin-left: 15px;}
 
 		/* --- Fletxes de desplaçament de pestanyes --- */
         .scroll-arrow {
@@ -240,12 +240,33 @@
         .scroll-arrow:active { border-color: #666 #fff #fff #666; }
         #tabs-container::-webkit-scrollbar { display: none; }
 
+        /* --- Botó per obrir en finestra independent --- */
+        .btn-finestra {
+            background-color: #ddd;
+            border: 1px solid #666;
+            padding: 4px 6px;
+			font-size: 11px;
+            cursor: pointer;
+            font-weight: bold;
+			margin-left: 15px;
+            margin-right: 0px;
+            margin-bottom: 6px;
+            white-space: normal;
+			text-align: center;
+			line-height: 1.2;
+            flex-shrink: 0;
+        }
+        .btn-finestra:hover {
+            background-color: #ccc;
+            border-style: solid;
+        }
+
         /* Ajustos per a mòbils */
         @media (max-width: 768px) {
             .grid-3-col { grid-template-columns: 1fr; }
             
             /* Reorganitzem la capçalera */
-            .css-tabs-nav { flex-direction: column; align-items: stretch; gap: 15px; }
+            .css-tabs-nav { flex-direction: column; align-items: stretch; gap: 20px; }
             
             /* Pestanyes en línia i desplaçables horitzontalment (swipe) */
             .css-tabs-container { 
@@ -338,8 +359,9 @@
     </div>
 
 	<div class="tabs-nav css-tabs-nav">
-		<div style="display: flex; max-width: 100%; overflow: hidden;">
-			<button id="scroll-left-btn" class="scroll-arrow" onclick="scrollTabs(-200)">&#9664;</button>
+		<div style="display: flex; flex: 1; max-width: 100%; overflow: hidden; align-items: flex-end;">
+            <div style="display: flex; flex: 1; overflow: hidden;">
+				<button id="scroll-left-btn" class="scroll-arrow" onclick="scrollTabs(-200)">&#9664;</button>
 				<div class="css-tabs-container" id="tabs-container" style="flex-wrap: nowrap; overflow-x: auto; scrollbar-width: none; -ms-overflow-style: none;">
 					<button class="tab-btn active" data-text="Enllaços Eines" onclick="switchTab('tab-enllacos', this)">Enllaços Eines</button>
 					<button class="tab-btn" data-text="Calculadora Factures" onclick="switchTab('tab-calc-factures', this)">Calculadora Factures</button>
@@ -353,16 +375,15 @@
 			<button id="scroll-right-btn" class="scroll-arrow" onclick="scrollTabs(200)">&#9654;</button>
         </div>
 		
-        <div class="css-info-container">
+		<button class="btn-finestra" onclick="obrirFinestraApp()" title="Obre com a finestra independent">Obre a<br>finestra</button>
+		
+        </div><div class="css-info-container">
             <div style="font-size: 10px; line-height: 1.2;">
                 Creat per David Vidal Viladoms + Gemini<br>
                 Versió 1.1.15
 			</div>
-			<button class="btn-secondary" onclick="obrirFinestraApp()" style="margin-bottom: 5px; cursor: pointer; font-size: 10px;">
-			Obrir a finestra
-			</button>
             <div style="display: flex; align-items: center; gap: 10px; white-space: nowrap; justify-content: center;">
-                <label for="format-global" style="margin: 0; font-weight: bold; white-space: nowrap;">Format:</label>
+                <label for="format-global" style="margin: 0; font-weight: bold; white-space: nowrap;">Format numèric:</label>
                 <select id="format-global" class="input-verd" style="width: auto; padding: 4px;" onchange="aplicarFormatGlobal()">
                     <option value="dos_decimals_eur">Dos decimals (1.234,56)</option>
                     <option value="dos_decimals_eng">Dos decimals (1,234.56)</option>
