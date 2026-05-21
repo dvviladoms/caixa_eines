@@ -162,18 +162,11 @@
         function toggleConfig() {
             document.getElementById("config-menu").classList.toggle("show");
         }
-
-        // Tanca el menú si l'usuari fa clic a fora
-        window.addEventListener('click', function(event) {
-            if (!event.target.closest('.dropdown-config')) {
-                const dropdowns = document.getElementsByClassName("dropdown-content");
-                for (let i = 0; i < dropdowns.length; i++) {
-                    if (dropdowns[i].classList.contains('show')) {
-                        dropdowns[i].classList.remove('show');
-                    }
-                }
-            }
-        });
+		
+		// Funció per tancar el menú explícitament amb la X
+        function tancarConfig() {
+            document.getElementById("config-menu").classList.remove("show");
+        }
     </script>
 
     <style>
@@ -365,6 +358,20 @@
         .dropdown-item:last-child {
             margin-bottom: 0;
         }
+		.btn-tancar-menu {
+            position: absolute;
+            top: 5px;
+            right: 5px;
+            background-color: var(--bg-boto);
+            border: 1px solid var(--vora-fosca);
+            cursor: pointer;
+            font-weight: bold;
+            padding: 2px 6px;
+            font-size: 10px;
+        }
+        .btn-tancar-menu:hover {
+            background-color: var(--bg-boto-hover);
+        }
 
         /* Ajustos per a mòbils */
         @media (max-width: 768px) {
@@ -484,23 +491,27 @@
             
             <div class="dropdown-config">
                 <button class="btn-finestra" onclick="toggleConfig()" style="margin: 0;">Configuració</button>
-                <div id="config-menu" class="dropdown-content">
-                    <div class="dropdown-item">
-                        <label for="format-global" style="margin: 0; font-weight: bold; white-space: nowrap;">Format numèric:</label>
-                        <select id="format-global" class="input-verd" style="width: 140px; padding: 4px;" onchange="aplicarFormatGlobal()">
-                            <option value="dos_decimals_eur">Dos decimals (1.234,56)</option>
-                            <option value="dos_decimals_eng">Dos decimals (1,234.56)</option>
-                            <option value="general">General</option>
-                        </select>
-                    </div>
-                    <div class="dropdown-item">
-                        <label for="selector-tema" style="margin: 0; font-weight: bold; white-space: nowrap;">Tema:</label>
-                        <select id="selector-tema" class="input-verd" style="width: 140px; padding: 4px;" onchange="aplicarTema()">
-                            <option value="defecte">Gris</option>
-                            <option value="fosc">Fosc</option>
-                        </select>
-                    </div>
-                </div>
+				<div id="config-menu" class="dropdown-content" style="min-width: 330px;">
+					<button class="btn-tancar-menu" onclick="tancarConfig()" title="Tanca la configuració">X</button>
+					
+					<h3 style="margin-top: 0; margin-bottom: 15px; font-size: 1.2em; border-bottom: 1px dotted var(--vora-separador); padding-bottom: 5px; padding-right: 20px;">Configuració</h3>
+					
+					<div class="dropdown-item">
+						<label for="format-global" style="margin: 0; font-weight: bold; white-space: nowrap;">Format numèric:</label>
+						<select id="format-global" class="input-verd" style="width: 180px; padding: 4px;" onchange="aplicarFormatGlobal()">
+							<option value="dos_decimals_eur">Dos decimals (1.234,56)</option>
+							<option value="dos_decimals_eng">Dos decimals (1,234.56)</option>
+							<option value="general">General</option>
+						</select>
+					</div>
+					<div class="dropdown-item">
+						<label for="selector-tema" style="margin: 0; font-weight: bold; white-space: nowrap;">Tema:</label>
+						<select id="selector-tema" class="input-verd" style="width: 180px; padding: 4px;" onchange="aplicarTema()">
+							<option value="defecte">Gris</option>
+							<option value="fosc">Fosc</option>
+						</select>
+					</div>
+				</div>
             </div>
         </div>
     </div>
