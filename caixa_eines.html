@@ -73,7 +73,18 @@
             }
         }
 
-        // Escoltem els esdeveniments per actualitzar les fletxes quan toqui
+        // Funció per aplicar el tema visual
+        function aplicarTema() {
+            const tema = document.getElementById('selector-tema').value;
+            if (tema === 'defecte') {
+                document.documentElement.removeAttribute('data-theme');
+            } else {
+                document.documentElement.setAttribute('data-theme', tema);
+            }
+            localStorage.setItem('tema_eines', tema);
+        }
+
+        // Escoltem els esdeveniments per actualitzar les fletxes i carregar el tema quan toqui
         window.addEventListener('DOMContentLoaded', () => {
             const container = document.getElementById('tabs-container');
             if(container) {
@@ -83,6 +94,16 @@
             // Quan canvia la mida de la finestra o el zoom
             window.addEventListener('resize', comprovarFletxes);
             
+            // Recuperar el tema guardat al carregar la pàgina
+            const temaGuardat = localStorage.getItem('tema_eines');
+            if (temaGuardat) {
+                const selectorTema = document.getElementById('selector-tema');
+                if (selectorTema) {
+                    selectorTema.value = temaGuardat;
+                    aplicarTema();
+                }
+            }
+
             // Donem temps que es renderitzi i fem la primera comprovació
             setTimeout(comprovarFletxes, 100); 
         });
@@ -136,74 +157,122 @@
 			// Obrim la finestra
 			window.open(urlActual, '_blank', parametres);
 		}
+		
+		// Funció per mostrar/amagar el menú de configuració
+        function toggleConfig() {
+            document.getElementById("config-menu").classList.toggle("show");
+        }
+
+        // Tanca el menú si l'usuari fa clic a fora
+        window.addEventListener('click', function(event) {
+            if (!event.target.closest('.dropdown-config')) {
+                const dropdowns = document.getElementsByClassName("dropdown-content");
+                for (let i = 0; i < dropdowns.length; i++) {
+                    if (dropdowns[i].classList.contains('show')) {
+                        dropdowns[i].classList.remove('show');
+                    }
+                }
+            }
+        });
     </script>
 
     <style>
+        /* VARIABLES DE TEMA - PALETES DE COLORS */
+        :root {
+            --bg-fons: #ccc;
+            --bg-targeta: #eee;
+            --bg-boto: #ddd;
+            --bg-boto-hover: #eee;
+            --bg-input: #fff;
+            --bg-input-readonly: #ddd;
+            --bg-loading: rgba(204, 204, 204, 0.95);
+            --vora-clara: #fff;
+            --vora-fosca: #666;
+            --vora-taula: #ccc;
+            --vora-separador: #999;
+            --text-principal: #000;
+        }
+
+        [data-theme="fosc"] {
+            --bg-fons: #1e1e1e;
+            --bg-targeta: #2d2d2d;
+            --bg-boto: #3c3c3c;
+            --bg-boto-hover: #4e4e4e;
+            --bg-input: #121212;
+            --bg-input-readonly: #252525;
+            --bg-loading: rgba(30, 30, 30, 0.95);
+            --vora-clara: #555;
+            --vora-fosca: #111;
+            --vora-taula: #444;
+            --vora-separador: #555;
+            --text-principal: #e0e0e0;
+        }
+
         /* REGLA MESTRA */
         * {
             font-family: Verdana, Arial, sans-serif !important;
-            color: #000 !important;
+            color: var(--text-principal) !important;
         }
 
         /* Estils Globals */
-        body { background-color: #ccc; margin: 0; padding: 0; font-size: 12px; }
+        body { background-color: var(--bg-fons); margin: 0; padding: 0; font-size: 12px; }
         .tool-container { padding: 10px; max-width: 950px; margin: 0 auto; }
-        .card { border: 2px solid; border-color: #fff #666 #666 #fff; padding: 15px; margin-top: 10px; background: #eee; }
-        h1 { font-size: 1.4em; border-bottom: 2px groove #fff; padding-bottom: 5px; margin-bottom: 15px; text-align: left; font-weight: bold; }
+        .card { border: 2px solid; border-color: var(--vora-clara) var(--vora-fosca) var(--vora-fosca) var(--vora-clara); padding: 15px; margin-top: 10px; background: var(--bg-targeta); }
+        h1 { font-size: 1.4em; border-bottom: 2px groove var(--vora-clara); padding-bottom: 5px; margin-bottom: 15px; text-align: left; font-weight: bold; }
 
         /* Pestanyes */
-        .tabs-nav { border-bottom: 1px solid #fff; padding: 10px 10px 0 10px; background-color: #ccc; }
-        .tab-btn { background-color: #ddd; border: 2px solid; border-color: #fff #666 #666 #fff; border-bottom: none; padding: 6px 12px; cursor: pointer; text-decoration: none; margin-bottom: -1px; display: inline-flex; flex-direction: column; align-items: center; }
+        .tabs-nav { border-bottom: 1px solid var(--vora-clara); padding: 10px 10px 0 10px; background-color: var(--bg-fons); position: sticky; top: 0; z-index: 999;}
+        .tab-btn { background-color: var(--bg-boto); border: 2px solid; border-color: var(--vora-clara) var(--vora-fosca) var(--vora-fosca) var(--vora-clara); border-bottom: none; padding: 6px 12px; cursor: pointer; text-decoration: none; margin-bottom: -1px; display: inline-flex; flex-direction: column; align-items: center; }
 		.tab-btn::after {content: attr(data-text); font-weight: bold; height: 0; visibility: hidden; overflow: hidden; }
-        .tab-btn:hover { background-color: #eee; }
-        .tab-btn.active { background-color: #eee; font-weight: bold; border-color: #fff #666 #eee #fff; }
+        .tab-btn:hover { background-color: var(--bg-boto-hover); }
+        .tab-btn.active { background-color: var(--bg-targeta); font-weight: bold; border-color: var(--vora-clara) var(--vora-fosca) var(--bg-targeta) var(--vora-clara); }
         .tab-content { display: none; }
 
         /* Inputs */
         .input-group { margin-bottom: 10px; }
         label { display: block; font-weight: bold; margin-bottom: 3px; font-size: 12px; }
-        input, textarea, select { border: 2px solid; border-color: #666 #fff #fff #666; padding: 4px; width: 100%; box-sizing: border-box; background: #fff; border-radius: 0; }
-        input:focus, textarea:focus, select:focus { outline: 1px dotted #000; }
-        .input-readonly { background-color: #ddd !important; }
+        input, textarea, select { border: 2px solid; border-color: var(--vora-fosca) var(--vora-clara) var(--vora-clara) var(--vora-fosca); padding: 4px; width: 100%; box-sizing: border-box; background: var(--bg-input); border-radius: 0; }
+        input:focus, textarea:focus, select:focus { outline: 1px dotted var(--text-principal); }
+        .input-readonly { background-color: var(--bg-input-readonly) !important; }
 
         /* Botons */
-        button { background-color: #ddd; border: 2px solid; border-color: #fff #666 #666 #fff; padding: 5px 10px; cursor: pointer; }
-        button:active { border-color: #666 #fff #fff #666; }
+        button { background-color: var(--bg-boto); border: 2px solid; border-color: var(--vora-clara) var(--vora-fosca) var(--vora-fosca) var(--vora-clara); padding: 5px 10px; cursor: pointer; }
+        button:active { border-color: var(--vora-fosca) var(--vora-clara) var(--vora-clara) var(--vora-fosca); }
         .btn-main { font-weight: bold; margin-top: 10px; width: 100%; padding: 8px; }
         .btn-secondary, .btn-copy, .btn-action-small, .btn-add, .btn-mini-copy, .btn-folder { width: auto; font-weight: normal; margin: 2px; }
         .btn-del { width: 100%; height: auto; padding: 5px; }
 
         /* Quadres Resultats */
-        .res-sepia, .resnd-sepia, .folder-display, .option-box { border: 2px solid; border-color: #666 #fff #fff #666; background-color: #fff; padding: 10px; margin-top: 15px; }
+        .res-sepia, .resnd-sepia, .folder-display, .option-box { border: 2px solid; border-color: var(--vora-fosca) var(--vora-clara) var(--vora-clara) var(--vora-fosca); background-color: var(--bg-input); padding: 10px; margin-top: 15px; }
         .resnd-sepia { justify-content: flex-end; }
 
         /* Taules */
-        .table-wrapper { overflow-x: auto; border: 2px solid; border-color: #666 #fff #fff #666; margin-top: 10px; }
-        table, .dist-table, table.data-table { width: 100%; border-collapse: collapse; background: #fff; margin-top: 0; border: none; }
-        th, td, .dist-table th, .dist-table td { border: 1px solid #ccc; padding: 6px; text-align: left; }
-        th, .dist-table th { background-color: #ddd; font-weight: bold; border-bottom: 2px solid #999; border-right: 1px solid #999; }
+        .table-wrapper { overflow-x: auto; border: 2px solid; border-color: var(--vora-fosca) var(--vora-clara) var(--vora-clara) var(--vora-fosca); margin-top: 10px; }
+        table, .dist-table, table.data-table { width: 100%; border-collapse: collapse; background: var(--bg-input); margin-top: 0; border: none; }
+        th, td, .dist-table th, .dist-table td { border: 1px solid var(--vora-taula); padding: 6px; text-align: left; }
+        th, .dist-table th { background-color: var(--bg-boto); font-weight: bold; border-bottom: 2px solid var(--vora-separador); border-right: 1px solid var(--vora-separador); }
         .dist-table td:first-child { font-weight: normal; }
-        .dist-tfoot td { border-top: 2px solid #666; font-weight: bold; background-color: #ddd; }
+        .dist-tfoot td { border-top: 2px solid var(--vora-fosca); font-weight: bold; background-color: var(--bg-boto); }
 
         /* Contenidors */
-        .res-header { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; border-bottom: 2px groove #fff; padding-bottom: 10px; margin-bottom: 10px; }
+        .res-header { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; border-bottom: 2px groove var(--vora-clara); padding-bottom: 10px; margin-bottom: 10px; }
         .checkbox-group { display: flex; gap: 20px; flex-wrap: wrap; }
         .check-column { display: flex; flex-direction: column; gap: 5px; }
         .checkbox-container { display: flex; align-items: center; cursor: default; }
         .checkbox-container input { width: auto; margin-right: 5px; border: none; }
-        .dist-config-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 10px; margin-bottom: 15px; border-bottom: 2px groove #fff; padding-bottom: 15px; align-items: flex-end; }
+        .dist-config-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 10px; margin-bottom: 15px; border-bottom: 2px groove var(--vora-clara); padding-bottom: 15px; align-items: flex-end; }
         .dist-proj-row { display: grid; grid-template-columns: 2fr 1fr 50px; gap: 5px; align-items: center; margin-bottom: 5px; }
         .top-controls { display: flex; gap: 10px; margin-bottom: 15px; align-items: flex-end; }
         .control-group { flex: 1; }
         .right-controls { display: flex; flex-direction: row; align-items: center; gap: 15px; flex-wrap: wrap; justify-content: flex-end; }
-        .checks-group { display: flex; flex-direction: column; gap: 2px; align-items: flex-start; border: 2px solid; border-color: #666 #fff #fff #666; padding: 5px; background: #fff; }
+        .checks-group { display: flex; flex-direction: column; gap: 2px; align-items: flex-start; border: 2px solid; border-color: var(--vora-fosca) var(--vora-clara) var(--vora-clara) var(--vora-fosca); padding: 5px; background: var(--bg-input); }
         .checks-row { display: flex; gap: 10px; }
         .grid-3-col { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; margin-top: 15px; }
-        .col-header { font-weight: bold; background: #ddd; padding: 4px; border: 2px solid; border-color: #fff #666 #666 #fff; text-align: center; }
+        .col-header { font-weight: bold; background: var(--bg-boto); padding: 4px; border: 2px solid; border-color: var(--vora-clara) var(--vora-fosca) var(--vora-fosca) var(--vora-clara); text-align: center; }
 
         /* Llistes */
-        .file-list { list-style: none; padding: 0; margin: 0; max-height: 300px; overflow-y: scroll; border: 2px solid; border-color: #666 #fff #fff #666; background: #fff; }
-        .file-list li { border-bottom: 1px dotted #ccc; padding: 2px 5px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;}
+        .file-list { list-style: none; padding: 0; margin: 0; max-height: 300px; overflow-y: scroll; border: 2px solid; border-color: var(--vora-fosca) var(--vora-clara) var(--vora-clara) var(--vora-fosca); background: var(--bg-input); }
+        .file-list li { border-bottom: 1px dotted var(--vora-taula); padding: 2px 5px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;}
         
         .icon-file::before { content: "[Arxiu] "; margin-right: 5px; }
         .icon-folder { font-weight: bold; }
@@ -212,38 +281,38 @@
         .diff-missing { text-decoration: none !important; background-color: transparent !important; }
         .diff-new { font-weight: bold; background-color: transparent !important; }
         
-        .alert-box, .success-text { border: 2px solid; border-color: #666 #fff #fff #666; padding: 5px; margin-top: 10px; font-weight: bold; text-align: center; background-color: #fff; }
+        .alert-box, .success-text { border: 2px solid; border-color: var(--vora-fosca) var(--vora-clara) var(--vora-clara) var(--vora-fosca); padding: 5px; margin-top: 10px; font-weight: bold; text-align: center; background-color: var(--bg-input); }
         .valida, .errònia { font-weight: bold; }
-        .errònia { border: 1px dotted #000; background: #fff; padding: 2px; }
-        .badge { border: 1px solid #666; padding: 1px 4px; font-size: 10px; text-transform: uppercase; background: #ddd; }
-        .res-row, .res-row-sub { display: flex; justify-content: space-between; border-bottom: 1px dotted #999; padding: 2px 0; }
-        .res-row:last-child { font-weight: bold; border-top: 2px solid #666; border-bottom: none; margin-top: 5px; padding-top: 5px;}
+        .errònia { border: 1px dotted var(--text-principal); background: var(--bg-input); padding: 2px; }
+        .badge { border: 1px solid var(--vora-fosca); padding: 1px 4px; font-size: 10px; text-transform: uppercase; background: var(--bg-boto); }
+        .res-row, .res-row-sub { display: flex; justify-content: space-between; border-bottom: 1px dotted var(--vora-separador); padding: 2px 0; }
+        .res-row:last-child { font-weight: bold; border-top: 2px solid var(--vora-fosca); border-bottom: none; margin-top: 5px; padding-top: 5px;}
 
-		/* Contenidors de la capçalera (escriptori) */
+	/* Contenidors de la capçalera (escriptori) */
         .css-tabs-nav { display: flex; justify-content: space-between; align-items: flex-end; }
         .css-tabs-container { display: flex; flex-wrap: wrap; gap: 2px; }
         .css-info-container { padding-bottom: 5px; padding-right: 10px; display: flex; flex-direction: column; align-items: flex-end; gap: 6px; text-align: right; margin-left: 15px;}
 
-		/* --- Fletxes de desplaçament de pestanyes --- */
+	/* --- Fletxes de desplaçament de pestanyes --- */
         .scroll-arrow {
             display: none; /* Amagades per defecte */
-            background-color: #ddd;
+            background-color: var(--bg-boto);
             border: 2px solid;
-            border-color: #fff #666 #666 #fff;
+            border-color: var(--vora-clara) var(--vora-fosca) var(--vora-fosca) var(--vora-clara);
             border-bottom: none;
             padding: 6px 10px;
             cursor: pointer;
             font-weight: bold;
             z-index: 10;
         }
-        .scroll-arrow:hover { background-color: #eee; }
-        .scroll-arrow:active { border-color: #666 #fff #fff #666; }
+        .scroll-arrow:hover { background-color: var(--bg-boto-hover); }
+        .scroll-arrow:active { border-color: var(--vora-fosca) var(--vora-clara) var(--vora-clara) var(--vora-fosca); }
         #tabs-container::-webkit-scrollbar { display: none; }
 
         /* --- Botó per obrir en finestra independent --- */
         .btn-finestra {
-            background-color: #ddd;
-            border: 1px solid #666;
+            background-color: var(--bg-boto);
+            border: 1px solid var(--vora-fosca);
             padding: 4px 6px;
 			font-size: 11px;
             cursor: pointer;
@@ -257,8 +326,44 @@
             flex-shrink: 0;
         }
         .btn-finestra:hover {
-            background-color: #ccc;
+            background-color: var(--bg-boto-hover);
             border-style: solid;
+        }
+		
+		/* --- Menú de Configuració --- */
+        .dropdown-config {
+            position: relative;
+            display: inline-block;
+            margin-bottom: 6px;
+            margin-left: 5px;
+            margin-right: 15px;
+        }
+        .dropdown-content {
+            display: none;
+            position: absolute;
+            right: 0;
+            top: 100%;
+            background-color: var(--bg-targeta);
+            min-width: 280px;
+            border: 2px solid;
+            border-color: var(--vora-clara) var(--vora-fosca) var(--vora-fosca) var(--vora-clara);
+            box-shadow: 3px 3px 0px rgba(0,0,0,0.2);
+            padding: 12px;
+            z-index: 1000;
+            margin-top: 2px;
+        }
+        .dropdown-content.show {
+            display: block;
+        }
+        .dropdown-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 15px;
+            margin-bottom: 10px;
+        }
+        .dropdown-item:last-child {
+            margin-bottom: 0;
         }
 
         /* Ajustos per a mòbils */
@@ -290,7 +395,7 @@
             left: 0;
             width: 100%;
             height: 100%;
-            background-color: rgba(204, 204, 204, 0.95); /* Color gris fons amb opacitat */
+            background-color: var(--bg-loading);
             z-index: 9999; /* Per sobre de tot */
             display: flex;
             flex-direction: column;
@@ -298,8 +403,8 @@
             align-items: center;
         }
         .spinner {
-            border: 8px solid #fff;
-            border-top: 8px solid #666;
+            border: 8px solid var(--vora-clara);
+            border-top: 8px solid var(--vora-fosca);
             border-radius: 50%;
             width: 60px;
             height: 60px;
@@ -313,11 +418,11 @@
         .loading-text {
             font-size: 1.5em;
             font-weight: bold;
-            color: #000;
+            color: var(--text-principal);
             border: 2px solid; 
-            border-color: #fff #666 #666 #fff;
+            border-color: var(--vora-clara) var(--vora-fosca) var(--vora-fosca) var(--vora-clara);
             padding: 10px 20px;
-            background: #eee;
+            background: var(--bg-targeta);
         }
 
 		input[type="number"]::-webkit-outer-spin-button,
@@ -337,7 +442,7 @@
 			height: 25px;
 			padding: 0 4px;
 			border: 2px solid;
-			border-color: #666 #fff #fff #666;
+			border-color: var(--vora-fosca) var(--vora-clara) var(--vora-clara) var(--vora-fosca);
 			box-sizing: border-box;
 			display: flex;
 			align-items: center;
@@ -359,7 +464,7 @@
     </div>
 
 	<div class="tabs-nav css-tabs-nav">
-		<div style="display: flex; flex: 1; max-width: 100%; overflow: hidden; align-items: flex-end;">
+		<div style="display: flex; flex: 1; max-width: 100%; align-items: flex-end;">
             <div style="display: flex; flex: 1; overflow: hidden;">
 				<button id="scroll-left-btn" class="scroll-arrow" onclick="scrollTabs(-200)">&#9664;</button>
 				<div class="css-tabs-container" id="tabs-container" style="flex-wrap: nowrap; overflow-x: auto; scrollbar-width: none; -ms-overflow-style: none;">
@@ -372,24 +477,31 @@
 					<button class="tab-btn" data-text="Validador DNI" onclick="switchTab('tab-validador', this)">Validador DNI</button>
 					<button class="tab-btn" data-text="Comparador Arxius" onclick="switchTab('tab-llistador', this)">Comparador Arxius</button>
 				</div>
-			<button id="scroll-right-btn" class="scroll-arrow" onclick="scrollTabs(200)">&#9654;</button>
-        </div>
+			    <button id="scroll-right-btn" class="scroll-arrow" onclick="scrollTabs(200)">&#9654;</button>
+            </div>
 		
-		<button class="btn-finestra" onclick="obrirFinestraApp()" title="Obre com a finestra independent">Obre a<br>finestra</button>
-		
-        </div><div class="css-info-container">
-            <div style="font-size: 10px; line-height: 1.2;">
-                Creat per David Vidal Viladoms + Gemini<br>
-                Versió 1.1.15
-			</div>
-            <div style="display: flex; align-items: center; gap: 10px; white-space: nowrap; justify-content: center;">
-                <label for="format-global" style="margin: 0; font-weight: bold; white-space: nowrap;">Format numèric:</label>
-                <select id="format-global" class="input-verd" style="width: auto; padding: 4px;" onchange="aplicarFormatGlobal()">
-                    <option value="dos_decimals_eur">Dos decimals (1.234,56)</option>
-                    <option value="dos_decimals_eng">Dos decimals (1,234.56)</option>
-                    <option value="general">General</option>
-                </select>
-				</div>
+            <button class="btn-finestra" onclick="obrirFinestraApp()" title="Obre com a finestra independent">Obre a finestra</button>
+            
+            <div class="dropdown-config">
+                <button class="btn-finestra" onclick="toggleConfig()" style="margin: 0;">Configuració</button>
+                <div id="config-menu" class="dropdown-content">
+                    <div class="dropdown-item">
+                        <label for="format-global" style="margin: 0; font-weight: bold; white-space: nowrap;">Format numèric:</label>
+                        <select id="format-global" class="input-verd" style="width: 140px; padding: 4px;" onchange="aplicarFormatGlobal()">
+                            <option value="dos_decimals_eur">Dos decimals (1.234,56)</option>
+                            <option value="dos_decimals_eng">Dos decimals (1,234.56)</option>
+                            <option value="general">General</option>
+                        </select>
+                    </div>
+                    <div class="dropdown-item">
+                        <label for="selector-tema" style="margin: 0; font-weight: bold; white-space: nowrap;">Tema:</label>
+                        <select id="selector-tema" class="input-verd" style="width: 140px; padding: 4px;" onchange="aplicarTema()">
+                            <option value="defecte">Gris</option>
+                            <option value="fosc">Fosc</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
 
@@ -412,7 +524,7 @@
 
                         // Creem l'H2 amb els teus estils
                         const titol = document.createElement('h2');
-                        titol.style.cssText = "font-size: 1.2em; border-bottom: 1px dotted #999; padding-bottom: 5px; margin-bottom: 10px;";
+                        titol.style.cssText = "font-size: 1.2em; border-bottom: 1px dotted var(--vora-separador); padding-bottom: 5px; margin-bottom: 10px;";
                         titol.textContent = grup.categoria;
                         divGrup.appendChild(titol);
 
@@ -507,7 +619,7 @@
                 </div>
                 <div id="dist-projects-container"></div>
                 <button py-click="dist_afegir_linia" class="btn-action-small btn-add">+ Afegeix Projecte</button>
-                <div style="border-top: 2px groove #fff; margin: 10px 0;"></div>
+                <div style="border-top: 2px groove var(--vora-clara); margin: 10px 0;"></div>
                 <button py-click="dist_calcular_distribucio" class="btn-main">Calcula el Desglossament</button>
                 <div id="dist-resultats" class="res-sepia" style="display:none;"><p style="text-align:center;">Calculant...</p></div>
             </div>
@@ -540,7 +652,7 @@
 
                     <div>
                         <label>Resultat:</label>
-                        <div class="table-wrapper" style="height: 300px; overflow-y: auto; margin-top: 0; border: 2px solid; border-color: #666 #fff #fff #666;">
+                        <div class="table-wrapper" style="height: 300px; overflow-y: auto; margin-top: 0; border: 2px solid; border-color: var(--vora-fosca) var(--vora-clara) var(--vora-clara) var(--vora-fosca);">
                             <table id="reemplac-table" class="data-table">
                                 <thead>
                                     <tr>
@@ -582,7 +694,7 @@
 					</div>
 
 					<div>
-						<div class="input-group" style="display: flex; gap: 10px; align-items: flex-end; margin-bottom: 15px; padding-bottom: 10px; border-bottom: 2px groove #fff;">
+						<div class="input-group" style="display: flex; gap: 10px; align-items: flex-end; margin-bottom: 15px; padding-bottom: 10px; border-bottom: 2px groove var(--vora-clara);">
 							<div style="flex: 1;">
 								<label for="nova-etiqueta">Crea una etiqueta nova:</label>
 								<input type="text" id="nova-etiqueta" class="input-verd" placeholder="Escriu el nom i prem Afegeix...">
@@ -608,7 +720,7 @@
 				</div>
 
 				<div id="calc-col-summary-box" class="res-sepia" style="display:none; margin-top: 20px;">
-					<h3 style="margin-top: 0; border-bottom: 1px dotted #999; padding-bottom: 5px;">Resum per Etiquetes</h3>
+					<h3 style="margin-top: 0; border-bottom: 1px dotted var(--vora-separador); padding-bottom: 5px;">Resum per Etiquetes</h3>
 					<table class="dist-table" style="width: 50%;">
 						<thead>
 							<tr>
@@ -695,10 +807,10 @@
                         </div>
                     </div>
                     <ul id="llista-arxius" class="file-list"></ul>
-                    <div id="footer-count" class="footer-count" style="margin-top: 15px; font-weight: bold; text-align: right; border-top: 1px dotted #999; padding-top: 10px;"></div>
+                    <div id="footer-count" class="footer-count" style="margin-top: 15px; font-weight: bold; text-align: right; border-top: 1px dotted var(--vora-separador); padding-top: 10px;"></div>
                 </div>
 
-                <div id="compare-ui-wrapper" class="compare-section" style="display:none; margin-top: 40px; border-top: 2px groove #fff; padding-top: 30px;">
+                <div id="compare-ui-wrapper" class="compare-section" style="display:none; margin-top: 40px; border-top: 2px groove var(--vora-clara); padding-top: 30px;">
                     <label style="margin-bottom: 15px;">(Opcional) Compara-ho amb una altra carpeta</label>
                     <div class="top-controls">
                         <div class="control-group">
@@ -740,7 +852,7 @@
                             <div><div id="titol-resultats" class="col-header">Totes les diferències</div><ul id="list-col-diff" class="file-list" style="height: 300px;"></ul></div>
                         </div>
                         
-                        <div id="footer-count-compare" style="display: flex; justify-content: space-between; align-items: center; margin-top: 15px; border-top: 1px dotted #999; padding-top: 10px;">
+                        <div id="footer-count-compare" style="display: flex; justify-content: space-between; align-items: center; margin-top: 15px; border-top: 1px dotted var(--vora-separador); padding-top: 10px;">
                             <div style="display: flex; gap: 15px; font-size: 11px;">
                                 <div><span style="font-weight: bold; margin-right: 3px;">[+]</span> A Comparada i no a Inicial</div>
                                 <div><span style="font-weight: bold; margin-right: 3px;">[-]</span> A Inicial i no a Comparada</div>
@@ -815,7 +927,7 @@
                 <div class="res-row-sub"><span>└ IVA deduïble:</span> <span>{formatar_num(iva_dedu)}</span></div>
                 <div class="res-row-sub"><span>└ IVA no deduïble:</span> <span>{formatar_num(iva_no_dedu)}</span></div>
                 <div class="res-row"><span>IRPF ({irpf_p*100:.0f}%):</span> <span>-{formatar_num(irpf_import)}</span></div>
-                <div style="margin: 10px 0; border-top: 1px dashed #f1e4b5;"></div>
+                <div style="margin: 10px 0; border-top: 1px dashed var(--vora-separador);"></div>
                 <div class="res-row"><span>TOTAL FACTURA:</span> <span>{formatar_num(total_factura)}</span></div>
                 <div class="res-row"><span>TOTAL COST:</span> <span>{formatar_num(total_cost)}</span></div>
             """
@@ -893,7 +1005,7 @@
                     <tfoot class="dist-tfoot"><tr><td>TOTALS</td><td>{formatar_num(sum_bi)}</td><td>{formatar_num(sum_iva)}</td><td>{formatar_num(sum_iva_ded)}</td><td>{formatar_num(sum_iva_noded)}</td><td>-{formatar_num(sum_irpf)}</td><td>{formatar_num(sum_total_fac)}</td><td>{formatar_num(sum_cost)}</td></tr></tfoot>
                 </table>
             </div>
-            <div style="margin-top:20px; padding:15px; background-color: #fff; border: 1px solid #000;">
+            <div style="margin-top:20px; padding:15px; background-color: var(--bg-input); border: 1px solid var(--text-principal);">
                 <div style="display:flex; justify-content:space-between; margin-bottom:5px;"><span>Cost Total Real:</span><span style="font-weight:bold;">{formatar_num(cost_total_factura)}</span></div>
                 <div style="display:flex; justify-content:space-between; margin-bottom:5px;"><span>Cost Total Repartit:</span><span style="font-weight:bold;">{formatar_num(sum_cost)}</span></div>
             """
@@ -1124,7 +1236,7 @@
                  parts = first_file.webkitRelativePath.split('/')
                  if len(parts) > 0: folder_name = parts[0]
             status_el.innerText = f"{folder_name} ({input_el.files.length} objectes detectats)"
-            status_el.style.backgroundColor = "#ccc"
+            status_el.style.backgroundColor = "var(--bg-fons)"
         else: status_el.innerText = "Cap carpeta seleccionada"
 
     def actualitzar_status_carpeta_b(event):
@@ -1137,7 +1249,7 @@
                  parts = first_file.webkitRelativePath.split('/')
                  if len(parts) > 0: folder_name = parts[0]
             status_el.innerText = f"{folder_name} ({input_el.files.length} objectes detectats)"
-            status_el.style.backgroundColor = "#ccc"
+            status_el.style.backgroundColor = "var(--bg-fons)"
         else: status_el.innerText = "Cap carpeta comparada seleccionada"
 
     input_dom = document.querySelector("#folder-input")
@@ -1566,5 +1678,9 @@
     document.querySelector("#loading-overlay").style.display = "none"
 
     </script>
+	<div style="text-align: center; padding: 30px 10px 20px 10px; font-size: 10px; line-height: 1.4; opacity: 0.6; clear: both;">
+        Creat per David Vidal Viladoms + Gemini<br>
+        Versió 1.1.16
+    </div>
 </body>
 </html>
