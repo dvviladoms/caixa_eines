@@ -329,8 +329,32 @@
 	/* Contenidors de la capçalera (escriptori) */
         .css-tabs-nav { display: flex; justify-content: space-between; align-items: flex-end; }
         .css-tabs-container { display: flex; flex-wrap: wrap; gap: 2px; }
-        .css-info-container { padding-bottom: 5px; padding-right: 10px; display: flex; flex-direction: column; align-items: flex-end; gap: 6px; text-align: right; margin-left: 15px;}
-
+        .css-info-container {
+            display: flex;
+            flex-direction: column; /* Apilats en escriptori */
+            justify-content: flex-end;
+            gap: 2px; /* Reduïm l'espai entre botons perquè no pugin tant */
+            margin-left: 10px;
+            margin-right: 15px;
+            min-width: 115px;
+            padding-bottom: 1px; /* Alineació inferior amb les pestanyes */
+        }
+        .css-info-container > .btn-finestra,
+        .css-info-container > .dropdown-config {
+            margin: 0;
+            width: 100%;
+            display: block;
+        }
+        .css-info-container .dropdown-config .btn-finestra {
+            margin: 0;
+            width: 100%;
+            box-sizing: border-box;
+        }
+        /* Fem els botons una mica més prims només en aquest racó */
+        .css-info-container .btn-finestra {
+            padding: 3px 6px;
+        }
+		
 	/* --- Fletxes de desplaçament de pestanyes --- */
         .scroll-arrow {
             display: none; /* Amagades per defecte */
@@ -423,7 +447,7 @@
             .grid-3-col { grid-template-columns: 1fr; }
             
             /* Reorganitzem la capçalera */
-            .css-tabs-nav { flex-direction: column; align-items: stretch; gap: 20px; }
+            .css-tabs-nav { flex-direction: column; align-items: stretch; gap: 5px; }
             
             /* Pestanyes en línia i desplaçables horitzontalment (swipe) */
             .css-tabs-container { 
@@ -436,9 +460,26 @@
             .css-tabs-container::-webkit-scrollbar { display: none; }
             .css-tabs-container { -ms-overflow-style: none; scrollbar-width: none; }
             
-            /* Centrem la informació a sota de les pestanyes */
-            .css-info-container { align-items: flex-end; text-align: right; padding-right: 10px; }
-        }
+            /* En pantalles petites posem els botons l'un al costat de l'altre */
+            .css-info-container {
+                flex-direction: row;
+                justify-content: center;
+                align-items: center;
+                gap: 15px;
+                padding: 0;
+                margin: 0;
+                padding-bottom: 5px;
+            }
+            /* Els tornem a la seva mida natural horitzontal */
+            .css-info-container > .btn-finestra,
+            .css-info-container > .dropdown-config,
+            .css-info-container .dropdown-config .btn-finestra {
+                width: auto;
+            }
+            /* Fem el botó una mica més alt per poder-lo prémer bé amb el dit */
+            .css-info-container .btn-finestra {
+                padding: 6px 12px;
+            }
 		
 		/* PANTALLA DE CÀRREGA */
         #loading-overlay {
@@ -516,7 +557,7 @@
     </div>
 
 	<div class="tabs-nav css-tabs-nav">
-		<div style="display: flex; flex: 1; max-width: 100%; align-items: flex-end;">
+		
             <div style="display: flex; flex: 1; overflow: hidden;">
 				<button id="scroll-left-btn" class="scroll-arrow" onclick="scrollTabs(-200)">&#9664;</button>
 				<div class="css-tabs-container" id="tabs-container" style="flex-wrap: nowrap; overflow-x: auto; scrollbar-width: none; -ms-overflow-style: none;">
@@ -532,11 +573,12 @@
 			    <button id="scroll-right-btn" class="scroll-arrow" onclick="scrollTabs(200)">&#9654;</button>
             </div>
 		
+            <div class="css-info-container">
             <button class="btn-finestra" onclick="obrirFinestraApp()" title="Obre com a finestra independent">Obre a finestra</button>
             
             <div class="dropdown-config">
-                <button class="btn-finestra" onclick="toggleConfig()" style="margin: 0;">Configuració</button>
-				<div id="config-menu" class="dropdown-content" style="min-width: 330px;">
+                <button class="btn-finestra" onclick="toggleConfig()">Configuració</button>
+                <div id="config-menu" class="dropdown-content" style="min-width: 330px;">
 					<button class="btn-tancar-menu" onclick="tancarConfig()" title="Tanca la configuració">X</button>
 					
 					<h3 style="margin-top: 0; margin-bottom: 15px; font-size: 1.2em; border-bottom: 1px dotted var(--vora-separador); padding-bottom: 5px; padding-right: 20px;">Configuració</h3>
