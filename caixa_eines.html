@@ -147,6 +147,51 @@
                 alert('Error al copiar: ', err);
             });
         }
+        // Funció per copiar la llista d'arxius al portaretalls
+		function copyLlistador() {
+			const llista = document.getElementById('llista-arxius');
+			let textToCopy = "";
+			
+			// Agafem tots els elements de la llista i n'extraiem el text
+			const elements = llista.getElementsByTagName('li');
+			for (let i = 0; i < elements.length; i++) {
+				textToCopy += elements[i].innerText + "\n";
+			}
+			
+			// Copiem al portaretalls
+			navigator.clipboard.writeText(textToCopy).then(function() {
+				const btn = document.getElementById('btn-copia-llistador');
+				const originalText = btn.innerText;
+				btn.innerText = "Copiat!";
+				setTimeout(() => { btn.innerText = originalText; }, 1000);
+			}, function(err) {
+				alert('Error al copiar: ' + err);
+			});
+		}
+		// Funció per copiar la llista de diferències del comparador al portaretalls
+		function copyComparador() {
+			const llista = document.getElementById('list-col-diff');
+			let textToCopy = "";
+			
+			// Agafem tots els elements de la columna de resultats/diferències
+			const elements = llista.getElementsByTagName('li');
+			for (let i = 0; i < elements.length; i++) {
+				// Extraiem el text i n'esborrem els prefixos [-] [+] o [=] i l'espai
+				let textNet = elements[i].innerText.replace(/^\[[+\-=]\]\s/, "");
+				textToCopy += textNet + "\n";
+			}
+			
+			// Copiem al portaretalls
+			navigator.clipboard.writeText(textToCopy).then(function() {
+				const btn = document.getElementById('btn-copia-comparador');
+				const originalText = btn.innerText;
+				btn.innerText = "Copiat!";
+				setTimeout(() => { btn.innerText = originalText; }, 1000);
+			}, function(err) {
+				alert('Error al copiar: ' + err);
+			});
+		}
+		
 		// Funció per obrir la web com una finestra independent
 		function obrirFinestraApp() {
 			// Agafem l'URL actual
@@ -814,6 +859,7 @@
 							<div style="display: flex; flex-direction: column; gap: 5px;">
                                 <button py-click="exportar_csv_llistador" class="btn-secondary" style="margin: 0;">Baixa en format .csv</button>
                                 <button py-click="exportar_txt_llistador" class="btn-secondary" style="margin: 0;">Baixa en format .txt</button>
+								<button id="btn-copia-llistador" class="btn-secondary" onclick="copyLlistador()" style="margin: 0;">Copia</button>
                             </div>
                         </div>
                     </div>
@@ -854,6 +900,7 @@
 								<div style="display: flex; flex-direction: column; gap: 5px;">
                                     <button py-click="exportar_dif_csv" class="btn-secondary" style="margin: 0;">Baixa en format .csv</button>
                                     <button py-click="exportar_dif_txt" class="btn-secondary" style="margin: 0;">Baixa en format .txt</button>
+									<button id="btn-copia-comparador" class="btn-secondary" onclick="copyComparador()" style="margin: 0;">Copia</button>
                                 </div>
                             </div>
                         </div>
@@ -1690,8 +1737,7 @@
 
     </script>
 	<div style="text-align: center; padding: 30px 10px 20px 10px; font-size: 10px; line-height: 1.4; opacity: 0.6; clear: both;">
-        Creat per David Vidal Viladoms + Gemini<br>
-        Versió 1.1.16
+        Creat per David Vidal Viladoms + Gemini — Versió 1.1.16
     </div>
 </body>
 </html>
