@@ -480,7 +480,7 @@
             .css-info-container .btn-finestra {
                 padding: 6px 12px;
             }
-		
+		}
 		/* PANTALLA DE CÀRREGA */
         #loading-overlay {
             position: fixed;
@@ -527,18 +527,51 @@
 			-moz-appearance: textfield; /* Per a Firefox */
 		}
 		
-		input[type="text"], input[type="number"], select { 
-			height: 25px; 
+		.dist-config-grid, 
+		#tab-calc-factures div[style*="grid-template-columns"] {
+			align-items: stretch !important;
 		}
+
+		.dist-config-grid .input-group,
+		#tab-calc-factures div[style*="grid-template-columns"] .input-group {
+			display: flex !important;
+			flex-direction: column !important;
+			justify-content: flex-end !important;
+			height: 100% !important;
+			margin-bottom: 0 !important;
+		}
+
+		input[type="text"], input[type="number"], select, .casella-falsa { 
+			height: 30px !important;
+			min-height: 30px !important;
+			max-height: 30px !important;
+			margin: 0 !important;
+			padding: 4px 6px !important;
+			box-sizing: border-box !important;
+			border: 2px solid !important;
+			border-color: var(--vora-fosca) var(--vora-clara) var(--vora-clara) var(--vora-fosca) !important;
+			border-radius: 0 !important;
+			font-size: 13px !important;
+			-webkit-appearance: none !important;
+			-moz-appearance: none !important;
+			appearance: none !important;
+		}
+
 		.casella-falsa {
 			width: 100%;
-			height: 25px;
-			padding: 0 4px;
-			border: 2px solid;
-			border-color: var(--vora-fosca) var(--vora-clara) var(--vora-clara) var(--vora-fosca);
-			box-sizing: border-box;
-			display: flex;
-			align-items: center;
+			display: inline-flex !important;
+			align-items: center !important;
+			overflow: hidden !important;
+			white-space: nowrap !important;
+			background-color: var(--bg-input-readonly) !important;
+		}
+
+		.casella-falsa {
+			width: 100%;
+			display: inline-flex !important;
+			align-items: center !important;
+			overflow: hidden !important;
+			white-space: nowrap !important;
 		}
 
 		select {
@@ -674,7 +707,7 @@
                         <input type="number" id="calc-val" class="input-verd" placeholder="Ex: 1250,50">
                     </div>
                 </div>
-                <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 15px; align-items: flex-end; ">
+                <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 15px; align-items: flex-end; margin-top: 10px;">
                     <div class="input-group">
                         <label>Tipus d'IVA:</label>
                         <input type="number" id="iva-pct" class="input-verd" placeholder="Ex: 21">
@@ -1778,7 +1811,7 @@
     document.querySelector("#loading-overlay").style.display = "none"
 
     </script>
-	<div style="text-align: center; padding: 30px 10px 20px 10px; font-size: 10px; line-height: 1.4; opacity: 0.6; clear: both;">
+	<div style="text-align: center; padding: 10px 10px 20px 10px; font-size: 10px; line-height: 1.4; opacity: 0.6; clear: both;">
         Creat per David Vidal Viladoms + Gemini — Versió 1.1.16
     </div>
 </body>
