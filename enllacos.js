@@ -43,6 +43,11 @@ const dadesEnllacos = [
         descripcio: "Modificació i edició d'arxius PDF." 
       },
       { 
+        titol: "PDF24", 
+        url: "https://tools.pdf24.org/en/all-tools", 
+        descripcio: "Modificació i edició d'arxius PDF." 
+      },
+      { 
         titol: "ILoveIMG", 
         url: "https://www.iloveimg.com/", 
         descripcio: "Conversió de formats d'arxius d'imatge." 
