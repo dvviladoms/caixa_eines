@@ -823,7 +823,7 @@
                                 <textarea id="calc-col-input" class="input-verd" style="width: 100%; height: 300px; white-space: pre; resize: none; box-sizing: border-box;" placeholder="Ex:&#10;150.50&#10;24,00&#10;-15,20"></textarea>
                             </div>
                             <div>
-                                <label for="calc-text-input" style="height: 28px; display: flex; align-items: flex-end; margin-bottom: 5px;">Conceptes (opcional):</label>
+                                <label for="calc-text-input" style="height: 28px; display: flex; align-items: flex-end; margin-bottom: 5px;">Referència (opcional):</label>
                                 <textarea id="calc-text-input" class="input-verd" style="width: 100%; height: 300px; white-space: pre; resize: none; box-sizing: border-box;" placeholder="Ex:&#10;Factura A&#10;Llum&#10;Abonament..."></textarea>
                             </div>
                         </div>
@@ -1197,6 +1197,31 @@
 	# ==========================================
     # TOOL 3: CERCADOR COMBINACIONS
     # ==========================================
+    CACHE_CERCADOR_CSV = []
+    
+    def exportar_csv_cercador(event):
+        global CACHE_CERCADOR_CSV
+        if not CACHE_CERCADOR_CSV: return
+        
+        output = io.StringIO(newline='') 
+        output.write('\ufeff') # BOM per a l'Excel
+        writer = csv.writer(output, delimiter=';')
+        for row in CACHE_CERCADOR_CSV: 
+            writer.writerow(row)
+            
+        csv_content = output.getvalue()
+        ts = datetime.datetime.now().strftime("%Y%m%d_%H%M")
+        downloadFile(f"cercador_combinacions_{ts}.csv", csv_content)
+        
+    def formatar_num_csv(valor):
+        format_actiu = document.querySelector("#format-global").value
+        if format_actiu == "dos_decimals_eur":
+            return f"{valor:,.2f}".replace(",", "X").replace(".", ",").replace("X", ".")
+        elif format_actiu == "dos_decimals_eng":
+            return f"{valor:,.2f}"
+        else:
+            return str(valor).replace(".", ",")
+
     def netejar_nombre(text):
         # 1. Neteja bàsica de símbols
         text = text.strip().replace('€', '').replace(' ', '')
@@ -1385,12 +1410,14 @@
         await backtrack(0, 0, 0, [])
         
         # 3. Presentació dels resultats (Exactes o Aproximacions)
+        global CACHE_CERCADOR_CSV
+        CACHE_CERCADOR_CSV = []
+        
         es_aproximacio = False
         llista_a_mostrar = solucions_indexos
 
         if not solucions_indexos:
             es_aproximacio = True
-            # Ordenem les aproximacions per menor diferència absoluta i agafem les 10 millors unificades
             millors_aproximacions.sort(key=lambda x: x[0])
             vistes = []
             llista_a_mostrar = []
@@ -1412,7 +1439,6 @@
 
         limit_msg = " (Límit de càlculs assolit)" if (len(llista_a_mostrar) == 100 and not es_aproximacio) else ""
         
-        # --- Càlcul de freqüències i rastreig de quina opció conté què ---
         freqs = {}
         opts_for_idx = {}
         for c, p_set in enumerate(llista_a_mostrar):
@@ -1421,37 +1447,47 @@
                 if idx not in opts_for_idx: opts_for_idx[idx] = []
                 opts_for_idx[idx].append(str(c))
         
-        # Guardem el total d'opcions en un camp ocult pel filtre Javascript
         html = f"<input type='hidden' id='cercador-num-opcions' data-total='{len(llista_a_mostrar)}'>"
         
-        # Missatge d'avís
+        # Inserim el botó de CSV a la capçalera
         if es_aproximacio:
             html += '<div class="alert-box" style="margin-bottom: 15px;">No s\'ha trobat cap combinació exacta. Aquestes són les 10 opcions que més s\'hi apropen:</div>'
-            html += f"<h3>Top {len(llista_a_mostrar)} aproximacions trobades:</h3>"
+            html += f"<div style='display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;'><h3 style='margin: 0; border: none; padding: 0;'>Top {len(llista_a_mostrar)} aproximacions trobades:</h3><button py-click='exportar_csv_cercador' class='btn-secondary' style='margin: 0;'>Baixa en format .csv</button></div>"
         else:
-            html += f"<h3>{len(llista_a_mostrar)} opcions trobades{limit_msg}:</h3>"
+            html += f"<div style='display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;'><h3 style='margin: 0; border: none; padding: 0;'>{len(llista_a_mostrar)} opcions trobades{limit_msg}:</h3><button py-click='exportar_csv_cercador' class='btn-secondary' style='margin: 0;'>Baixa en format .csv</button></div>"
 
         # ====== RENDERITZAT SENZILL ======
         if not is_doble:
+            csv_headers = ["Import Original"] + [f"Opció {i+1}" for i in range(len(llista_a_mostrar))]
+            CACHE_CERCADOR_CSV.append(csv_headers)
+            
             html += '<div class="table-wrapper" style="max-height: 450px; overflow-y: auto;">'
             html += '<table class="data-table" style="text-align: center; white-space: nowrap;">'
             
-            # CAPÇALERA
             html += "<thead><tr><th style='width: 1%; white-space: nowrap; padding: 0; position: sticky; left: 0; background: var(--bg-boto); z-index: 2; border-right: 3px double var(--vora-fosca);'>"
             html += "<div style='display: grid; grid-template-columns: 90px 1fr; height: 100%;'>"
-            html += "<div style='display: flex; align-items: center; justify-content: center; gap: 10px; padding: 6px 10px; border-right: 1px solid var(--vora-separador);'><span style='font-size: 10px; font-weight: normal; width: 25px; text-align: center;'>Ús</span><span style='font-size: 10px; font-weight: normal;'>Filtre</span></div>"
+            html += "<div style='display: flex; align-items: center; justify-content: center; gap: 10px; padding: 6px 10px; border-right: 1px solid var(--vora-separador);'><span style='font-size: 10px; font-weight: normal; width: 25px; text-align: center;'>#</span><span style='font-size: 10px; font-weight: normal;'>Filtre</span></div>"
             html += "<div style='padding: 6px 20px 6px 15px; display: flex; align-items: center; justify-content: flex-start;'>Import Original</div>"
             html += "</div></th>"
             for i in range(len(llista_a_mostrar)): 
                 html += f"<th class='cercador-opt-{i}'>Opció {i+1}</th>"
             html += "</tr></thead><tbody>"
             
-            # FILES
             for idx, val in enumerate(valors_originals_A):
                 count = freqs.get(idx, 0)
                 txt_count = "Tots" if count == len(llista_a_mostrar) else str(count)
                 opts_str = ",".join(opts_for_idx.get(idx, []))
                 
+                # --- Guardem al CSV ---
+                csv_row = [formatar_num_csv(val/100)]
+                for c in range(len(llista_a_mostrar)):
+                    if idx in llista_a_mostrar[c]:
+                        csv_row.append(formatar_num_csv(val/100))
+                    else:
+                        csv_row.append("")
+                CACHE_CERCADOR_CSV.append(csv_row)
+                
+                # --- Visual HTML ---
                 html += f"<tr><td style='width: 1%; white-space: nowrap; padding: 0; position: sticky; left: 0; background: var(--bg-input); z-index: 1; border-right: 3px double var(--vora-fosca); font-weight: bold;'>"
                 html += "<div style='display: grid; grid-template-columns: 90px 1fr; height: 100%;'>"
                 html += "<div style='display: flex; align-items: center; justify-content: center; gap: 10px; padding: 6px 10px; border-right: 1px solid var(--vora-separador);'>"
@@ -1472,12 +1508,21 @@
                 html += "</tr>"
             html += "</tbody><tfoot class='dist-tfoot'>"
             
-            # PEU
             if es_aproximacio:
+                csv_real = ["Suma Real Obtinguda"] + [formatar_num_csv(sumes_A_aprox[c]/100) for c in range(len(llista_a_mostrar))]
+                CACHE_CERCADOR_CSV.append(csv_real)
+                
+                csv_dif = ["Diferència"]
+                for c in range(len(llista_a_mostrar)): 
+                    dif_val = (sumes_A_aprox[c] - target_val) / 100
+                    signe = "+" if dif_val > 0 else ""
+                    csv_dif.append(f"{signe}{formatar_num_csv(dif_val)}")
+                CACHE_CERCADOR_CSV.append(csv_dif)
+                
                 html += "<tr><td style='width: 1%; white-space: nowrap; padding: 0; position: sticky; left: 0; background: var(--bg-boto); z-index: 2; border-right: 3px double var(--vora-fosca);'>"
                 html += "<div style='display: grid; grid-template-columns: 90px 1fr; height: 100%;'>"
                 html += "<div style='padding: 6px 10px; border-right: 1px solid var(--vora-separador);'></div>"
-                html += "<div style='padding: 6px 20px 6px 15px; display: flex; align-items: center; justify-content: flex-end;'>Suma Real</div>"
+                html += "<div style='padding: 6px 20px 6px 15px; display: flex; align-items: center; justify-content: flex-end;'>Suma Real Obtinguda</div>"
                 html += "</div></td>"
                 for c in range(len(llista_a_mostrar)): 
                     html += f"<td class='cercador-opt-{c}' style='background-color: var(--bg-boto); font-weight: bold;'>{formatar_num(sumes_A_aprox[c]/100)}</td>"
@@ -1494,6 +1539,9 @@
                     html += f"<td class='cercador-opt-{c}' style='background-color: var(--bg-boto); color: var(--text-principal); font-weight: bold;'>{signe}{formatar_num(dif_val)}</td>"
                 html += "</tr>"
             else:
+                csv_tgt = ["Total Objectiu"] + [formatar_num_csv(target_val/100) for c in range(len(llista_a_mostrar))]
+                CACHE_CERCADOR_CSV.append(csv_tgt)
+                
                 html += "<tr><td style='width: 1%; white-space: nowrap; padding: 0; position: sticky; left: 0; background: var(--bg-boto); z-index: 2; border-right: 3px double var(--vora-fosca);'>"
                 html += "<div style='display: grid; grid-template-columns: 90px 1fr; height: 100%;'>"
                 html += "<div style='padding: 6px 10px; border-right: 1px solid var(--vora-separador);'></div>"
@@ -1507,10 +1555,14 @@
         
         # ====== RENDERITZAT DOBLE ======
         else:
+            csv_headers = ["Import Original A", "Import Original B"]
+            for i in range(len(llista_a_mostrar)):
+                csv_headers.extend([f"Opció {i+1} A", f"Opció {i+1} B"])
+            CACHE_CERCADOR_CSV.append(csv_headers)
+            
             html += '<div class="table-wrapper" style="max-height: 450px; overflow-y: auto;">'
             html += '<table class="data-table" style="text-align: center; white-space: nowrap; border-collapse: collapse;">'
             
-            # CAPÇALERA
             html += "<thead><tr><th style='width: 1%; white-space: nowrap; padding: 0; position: sticky; left: 0; background: var(--bg-boto); z-index: 2; border-right: 3px double var(--vora-fosca);'>"
             html += "<div style='display: grid; grid-template-columns: 90px 1fr; height: 100%;'>"
             html += "<div style='display: flex; align-items: center; justify-content: center; gap: 10px; padding: 5px 10px; border-right: 1px solid var(--vora-separador);'><span style='font-size: 10px; font-weight: normal; width: 25px; text-align: center;'>Ús</span><span style='font-size: 10px; font-weight: normal;'>Filtre</span></div>"
@@ -1525,7 +1577,6 @@
                 html += "</th>"
             html += "</tr></thead><tbody>"
             
-            # FILES
             for idx, (valA, valB) in enumerate(zip(valors_originals_A, valors_originals_B)):
                 count = freqs.get(idx, 0)
                 txt_count = "Tots" if count == len(llista_a_mostrar) else str(count)
@@ -1534,6 +1585,18 @@
                 txtA = formatar_num(valA/100) if valA != 0 else "-"
                 txtB = formatar_num(valB/100) if valB != 0 else "-"
                 
+                # --- Guardem al CSV ---
+                txtA_csv = formatar_num_csv(valA/100) if valA != 0 else ""
+                txtB_csv = formatar_num_csv(valB/100) if valB != 0 else ""
+                csv_row = [txtA_csv, txtB_csv]
+                for c in range(len(llista_a_mostrar)):
+                    if idx in llista_a_mostrar[c]:
+                        csv_row.extend([txtA_csv, txtB_csv])
+                    else:
+                        csv_row.extend(["", ""])
+                CACHE_CERCADOR_CSV.append(csv_row)
+                
+                # --- Visual HTML ---
                 html += f"<tr><td style='width: 1%; white-space: nowrap; padding: 0; position: sticky; left: 0; background: var(--bg-input); z-index: 1; border-right: 3px double var(--vora-fosca);'>"
                 html += "<div style='display: grid; grid-template-columns: 90px 1fr; height: 100%;'>"
                 html += "<div style='display: flex; align-items: center; justify-content: center; gap: 10px; padding: 5px 10px; border-right: 1px solid var(--vora-separador);'>"
@@ -1554,8 +1617,21 @@
                 html += "</tr>"
             html += "</tbody><tfoot class='dist-tfoot'>"
             
-            # PEU
             if es_aproximacio:
+                csv_real = ["Suma Real A", "Suma Real B"]
+                for c in range(len(llista_a_mostrar)):
+                    csv_real.extend([formatar_num_csv(sumes_A_aprox[c]/100), formatar_num_csv(sumes_B_aprox[c]/100)])
+                CACHE_CERCADOR_CSV.append(csv_real)
+                
+                csv_dif = ["Diferència A", "Diferència B"]
+                for c in range(len(llista_a_mostrar)):
+                    difA = (sumes_A_aprox[c] - target_val) / 100
+                    difB = (sumes_B_aprox[c] - target_val_b) / 100
+                    sigA = "+" if difA > 0 else ""
+                    sigB = "+" if difB > 0 else ""
+                    csv_dif.extend([f"{sigA}{formatar_num_csv(difA)}", f"{sigB}{formatar_num_csv(difB)}"])
+                CACHE_CERCADOR_CSV.append(csv_dif)
+                
                 html += f"<tr><td style='width: 1%; white-space: nowrap; padding: 0; position: sticky; left: 0; background: var(--bg-boto); z-index: 2; border-right: 3px double var(--vora-fosca);'>"
                 html += "<div style='display: grid; grid-template-columns: 90px 1fr; height: 100%;'>"
                 html += "<div style='padding: 5px 10px; border-right: 1px solid var(--vora-separador);'></div>"
@@ -1580,6 +1656,11 @@
                     html += f"<td class='cercador-opt-{c}' style='background-color: var(--bg-boto); color: var(--text-principal); padding: 5px 15px; border-right: 2px solid var(--vora-separador);'><div style='display: grid; grid-template-columns: 1fr 1fr; text-align: right; font-weight: bold;'><span style='padding-right: 10px; border-right: 1px solid var(--vora-separador);'>{sigA}{formatar_num(difA)}</span><span style='padding-left: 10px;'>{sigB}{formatar_num(difB)}</span></div></td>"
                 html += "</tr>"
             else:
+                csv_tgt = ["Total A", "Total B"]
+                for c in range(len(llista_a_mostrar)):
+                    csv_tgt.extend([formatar_num_csv(target_val/100), formatar_num_csv(target_val_b/100)])
+                CACHE_CERCADOR_CSV.append(csv_tgt)
+                
                 html += f"<tr><td style='width: 1%; white-space: nowrap; padding: 0; position: sticky; left: 0; background: var(--bg-boto); z-index: 2; border-right: 3px double var(--vora-fosca);'>"
                 html += "<div style='display: grid; grid-template-columns: 90px 1fr; height: 100%;'>"
                 html += "<div style='padding: 5px 10px; border-right: 1px solid var(--vora-separador);'></div>"
