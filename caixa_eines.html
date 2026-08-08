@@ -817,33 +817,45 @@
 				
 				<div style="display: grid; grid-template-columns: 1fr 2fr; gap: 20px;">
 					<div>
-						<div class="input-group">
-							<label for="calc-col-input">Enganxa els imports (un per línia):</label>
-							<textarea id="calc-col-input" class="input-verd" style="height: 300px;" placeholder="Ex:&#10;150.50&#10;24,00&#10;-15,20"></textarea>
-						</div>
-						<button py-click="processar_columnes" class="btn-main">Llegeix els Imports</button>
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+                            <div>
+                                <label for="calc-col-input" style="height: 28px; display: flex; align-items: flex-end; margin-bottom: 5px;">Imports:</label>
+                                <textarea id="calc-col-input" class="input-verd" style="width: 100%; height: 300px; white-space: pre; resize: none; box-sizing: border-box;" placeholder="Ex:&#10;150.50&#10;24,00&#10;-15,20"></textarea>
+                            </div>
+                            <div>
+                                <label for="calc-text-input" style="height: 28px; display: flex; align-items: flex-end; margin-bottom: 5px;">Conceptes (opcional):</label>
+                                <textarea id="calc-text-input" class="input-verd" style="width: 100%; height: 300px; white-space: pre; resize: none; box-sizing: border-box;" placeholder="Ex:&#10;Factura A&#10;Llum&#10;Abonament..."></textarea>
+                            </div>
+                        </div>
+						<button py-click="processar_columnes" class="btn-main" style="margin-top: 10px;">Llegeix les Dades</button>
 					</div>
 
 					<div>
-						<div class="input-group" style="display: flex; gap: 10px; align-items: flex-end; margin-bottom: 15px; padding-bottom: 10px; border-bottom: 2px groove var(--vora-clara);">
+						<div class="input-group" style="display: flex; gap: 10px; align-items: flex-end; margin-bottom: 10px;">
 							<div style="flex: 1;">
 								<label for="nova-etiqueta">Crea una etiqueta nova:</label>
 								<input type="text" id="nova-etiqueta" class="input-verd" placeholder="Escriu el nom i prem Afegeix...">
 							</div>
 							<button py-click="afegir_etiqueta" class="btn-secondary" style="height: 29px; margin: 0;">Afegeix</button>
 						</div>
+                        
+                        <div id="contenidor-etiquetes" style="display: flex; flex-wrap: wrap; gap: 5px; margin-bottom: 15px; padding-bottom: 10px; border-bottom: 2px groove var(--vora-clara); min-height: 20px;">
+                            <span style="color: var(--vora-separador); font-size: 11px; font-style: italic;">Cap etiqueta creada.</span>
+                        </div>
 
 						<label>Assignació d'Etiquetes:</label>
 						<div class="table-wrapper" style="max-height: 230px; overflow-y: auto; margin-top: 0;">
 							<table id="calc-col-table" class="data-table">
 								<thead>
 									<tr>
-										<th style="width: 40%;">Import</th>
-										<th style="width: 60%;">Etiqueta</th>
+                                        <!-- Intercanviem l'ordre de les columnes Import / Concepte -->
+										<th style="width: 25%;">Import</th>
+										<th style="width: 40%;">Concepte</th>
+										<th style="width: 35%;">Etiqueta</th>
 									</tr>
 								</thead>
 								<tbody id="calc-col-body">
-									<tr><td colspan="2" style="text-align: center; color: #666;">Prem "Llegeix els Imports" per començar</td></tr>
+									<tr><td colspan="3" style="text-align: center; color: #666;">Prem "Llegeix les Dades" per començar</td></tr>
 								</tbody>
 							</table>
 						</div>
@@ -862,7 +874,7 @@
 						<tbody id="calc-col-summary-body"></tbody>
 						<tfoot class="dist-tfoot">
 							<tr>
-								<td>TOTAL GENERAL</td>
+								<td>Total General</td>
 								<td id="calc-col-total-general" style="text-align: right;">0,00</td>
 							</tr>
 						</tfoot>
@@ -876,14 +888,42 @@
         <div class="tool-container">
             <div class="card">
                 <h1>Cercador de Combinacions</h1>
-                <div class="input-group">
-                    <label for="target-input">Import TOTAL Objectiu:</label>
-                    <input type="text" id="target-input" class="input-verd" placeholder="Ex: 150,50">
+                <div style="margin-bottom: 15px;">
+                    <label class="checkbox-container" style="font-weight: bold;">
+                        <input type="checkbox" id="check-doble" onchange="
+                            document.getElementById('cercador-col-b').style.display = this.checked ? 'block' : 'none'; 
+                            document.getElementById('cercador-grid').style.gridTemplateColumns = this.checked ? '1fr 1fr' : '1fr';
+                            document.querySelectorAll('.label-a-ext').forEach(el => el.style.display = this.checked ? 'inline' : 'none');
+                        "> Activa la Combinació Doble
+                    </label>
                 </div>
-                <div class="input-group">
-                    <label for="invoices-input">Llista d'elements (un per línia):</label>
-                    <p style="font-weight: bold; margin-bottom: 15px;">Atenció: límit màxim permès de 200 elements. Amb més de 50 elements pot trigar massa a trobar les combinacions possibles.</p>
-                    <textarea id="invoices-input" class="input-verd" placeholder="Enganxa aquí els imports:&#10;145,65&#10;56,45&#10;52,00..." style="height: 200px;"></textarea>
+                
+                <div id="cercador-grid" style="display: grid; grid-template-columns: 1fr; gap: 20px;">
+                    <!-- Dades A (Sempre visibles) -->
+                    <div id="cercador-col-a">
+                        <div class="input-group">
+                            <label for="target-input">Import Total Objectiu<span class="label-a-ext" style="display: none;"> (A)</span>:</label>
+                            <input type="text" id="target-input" class="input-verd" placeholder="Ex: 150,50">
+                        </div>
+                        <div class="input-group">
+                            <label for="invoices-input">Llista d'elements<span class="label-a-ext" style="display: none;"> (A)</span>:</label>
+                            <p style="font-weight: bold; margin-bottom: 15px; font-size: 10px;">Atenció: límit màxim permès de 200 elements.</p>
+                            <textarea id="invoices-input" class="input-verd" placeholder="Enganxa aquí els imports:&#10;145,65&#10;56,45..." style="height: 200px;"></textarea>
+                        </div>
+                    </div>
+                    
+                    <!-- Dades B (Ocultes per defecte) -->
+                    <div id="cercador-col-b" style="display: none; padding-left: 20px; border-left: 1px dashed var(--vora-separador);">
+                        <div class="input-group">
+                            <label for="target-input-b">Import Total Objectiu (B):</label>
+                            <input type="text" id="target-input-b" class="input-verd" placeholder="Ex: 320,00">
+                        </div>
+                        <div class="input-group">
+                            <label for="invoices-input-b">Llista d'elements (B):</label>
+                            <p style="font-weight: bold; margin-bottom: 15px; font-size: 10px;">Fila per fila, l'ordre ha de coincidir amb la llista A.</p>
+                            <textarea id="invoices-input-b" class="input-verd" placeholder="Enganxa aquí els imports:&#10;200,00&#10;45,00..." style="height: 200px;"></textarea>
+                        </div>
+                    </div>
                 </div>
                 <button py-click="main_logic" id="run-btn" class="btn-main">Cerca Combinacions</button>
                 <div id="output-cercador" class="res-sepia" style="display:none;"></div>
@@ -1183,86 +1223,378 @@
         try: return int(round(float(text) * 100))
         except: return None
 
+    def cercador_filtrar_opcions(event):
+        checks = document.querySelectorAll(".cercador-filter-chk:checked")
+        try:
+            num_input = document.querySelector("#cercador-num-opcions")
+            total_opcions = int(num_input.getAttribute("data-total"))
+        except:
+            return
+            
+        # Si no hi ha res marcat, ho ensenyem tot
+        if checks.length == 0:
+            for c in range(total_opcions):
+                for el in document.querySelectorAll(f".cercador-opt-{c}"):
+                    el.style.display = ""
+            return
+            
+        # Busquem les columnes (opcions) que contenen TOTES les files marcades
+        primer_opts = checks.item(0).getAttribute("data-opts")
+        opcions_a_mostrar = set(primer_opts.split(",")) if primer_opts else set()
+        
+        for i in range(1, checks.length):
+            opts = checks.item(i).getAttribute("data-opts")
+            conjunt = set(opts.split(",")) if opts else set()
+            opcions_a_mostrar = opcions_a_mostrar.intersection(conjunt)
+            
+        # Apliquem els canvis visuals mostrant o amagant columnes
+        for c in range(total_opcions):
+            mostrar = str(c) in opcions_a_mostrar
+            for el in document.querySelectorAll(f".cercador-opt-{c}"):
+                el.style.display = "" if mostrar else "none"
+
     async def main_logic(event):
         output_div = document.querySelector("#output-cercador")
         output_div.style.display = "block"
         output_div.innerHTML = "Iniciant cerca optimitzada..."
+        
+        is_doble = document.querySelector("#check-doble").checked
         
         target_text = document.querySelector("#target-input").value
         invoices_text = document.querySelector("#invoices-input").value
         target_val = netejar_nombre(target_text)
         
         if target_val is None:
-            output_div.innerHTML = "<b>Error:</b> Import invàlid."
+            output_div.innerHTML = "<b>Error:</b> Import invàlid a la casella A."
             return
 
         raw_invoices = invoices_text.split('\n')
-        # CORRECCIÓ 1: Excloem els valors que siguin exactament 0
-        pool_nums = [netejar_nombre(f) for f in raw_invoices if netejar_nombre(f) is not None and netejar_nombre(f) != 0]
         
-        if not pool_nums:
-            output_div.innerHTML = "<b>Error:</b> No hi ha cap import a la llista (excloent els zeros)."
+        # 1. Adaptem les llistes per al cas senzill o doble
+        if is_doble:
+            target_text_b = document.querySelector("#target-input-b").value
+            invoices_text_b = document.querySelector("#invoices-input-b").value
+            target_val_b = netejar_nombre(target_text_b)
+            
+            if target_val_b is None:
+                output_div.innerHTML = "<b>Error:</b> Import invàlid a la casella B."
+                return
+                
+            raw_invoices_b = invoices_text_b.split('\n')
+            
+            # Igualem les llargades afegint espais buits en cas que l'usuari hagi posat menys línies a un costat
+            max_lines = max(len(raw_invoices), len(raw_invoices_b))
+            raw_invoices += [''] * (max_lines - len(raw_invoices))
+            raw_invoices_b += [''] * (max_lines - len(raw_invoices_b))
+        else:
+            raw_invoices_b = [''] * len(raw_invoices)
+            target_val_b = 0
+            
+        valors_originals_A = []
+        valors_originals_B = []
+        pool_items = []
+        idx_orig = 0
+        
+        # Guardem els valors originals associant A i B a la mateixa fila (índex)
+        for i in range(len(raw_invoices)):
+            val_a = netejar_nombre(raw_invoices[i]) or 0
+            val_b = netejar_nombre(raw_invoices_b[i]) or 0
+            
+            if not is_doble:
+                if val_a != 0:
+                    valors_originals_A.append(val_a)
+                    pool_items.append((val_a, 0, idx_orig))
+                    idx_orig += 1
+            else:
+                if val_a != 0 or val_b != 0:
+                    valors_originals_A.append(val_a)
+                    valors_originals_B.append(val_b)
+                    pool_items.append((val_a, val_b, idx_orig))
+                    idx_orig += 1
+                    
+        if not pool_items:
+            output_div.innerHTML = "<b>Error:</b> No hi ha dades a la llista (excloent zeros)."
             return
 
-        pool_nums.sort(reverse=True)
+        # Ordenem per optimitzar (fem servir la suma d'ambdós en absolut per si de cas)
+        pool_items.sort(key=lambda x: abs(x[0]) + abs(x[1]), reverse=True)
         
-        if len(pool_nums) > 200:
-            output_div.innerHTML = f"<b>Error:</b> Has introduït {len(pool_nums)} elements. El límit màxim permès és de 200 elements."
+        if len(pool_items) > 200:
+            output_div.innerHTML = f"<b>Error:</b> Has introduït {len(pool_items)} elements. El límit és 200."
             return
 
-        max_remaining = [0] * (len(pool_nums) + 1)
-        min_remaining = [0] * (len(pool_nums) + 1)
+        # Preparem matrius d'optimització (min/max restants) per a A i B
+        max_rem_A = [0] * (len(pool_items) + 1); min_rem_A = [0] * (len(pool_items) + 1)
+        max_rem_B = [0] * (len(pool_items) + 1); min_rem_B = [0] * (len(pool_items) + 1)
         
-        for i in range(len(pool_nums)-1, -1, -1):
-            val = pool_nums[i]
-            max_remaining[i] = max_remaining[i+1] + (val if val > 0 else 0)
-            min_remaining[i] = min_remaining[i+1] + (val if val < 0 else 0)
-
-        solucions = []
+        for i in range(len(pool_items)-1, -1, -1):
+            va = pool_items[i][0]; vb = pool_items[i][1]
+            max_rem_A[i] = max_rem_A[i+1] + (va if va > 0 else 0)
+            min_rem_A[i] = min_rem_A[i+1] + (va if va < 0 else 0)
+            max_rem_B[i] = max_rem_B[i+1] + (vb if vb > 0 else 0)
+            min_rem_B[i] = min_rem_B[i+1] + (vb if vb < 0 else 0)
+            
+        solucions_indexos = []
         iteracions = 0
         
-        async def backtrack(start_index, current_sum, path):
+        # 2. Algoritme de cerca amb A i B en paral·lel
+        millors_aproximacions = []  # Per quan no trobem coincidències exactes
+
+        async def backtrack(start_index, curr_sum_A, curr_sum_B, path_idx):
             nonlocal iteracions
-            # CORRECCIÓ 2: Pugem el límit a 100 solucions
-            if len(solucions) >= 100: return
+            if len(solucions_indexos) >= 100: return
             
             iteracions += 1
             if iteracions % 5000 == 0:
-                output_div.innerHTML = f"Cercant... {iteracions} combinacions possibles."
+                output_div.innerHTML = f"Cercant... {iteracions} combinacions avaluades."
                 await asyncio.sleep(0) 
                 
-            if current_sum == target_val:
-                nova_sol = list(path)
-                if nova_sol not in solucions:
-                    solucions.append(nova_sol)
-                if len(solucions) >= 100: return
+            match_A = (curr_sum_A == target_val)
+            match_B = (curr_sum_B == target_val_b) if is_doble else True
+            
+            if match_A and match_B:
+                nova_sol = set(path_idx)
+                if nova_sol not in solucions_indexos: solucions_indexos.append(nova_sol)
+                if len(solucions_indexos) >= 100: return
+            else:
+                # Guardem la desviació absoluta respecte als objectius
+                dif_A = abs(curr_sum_A - target_val)
+                dif_B = abs(curr_sum_B - target_val_b) if is_doble else 0
+                dif_total = dif_A + dif_B
                 
-            if start_index >= len(pool_nums): return
-                
-            if current_sum + min_remaining[start_index] > target_val: return
-            if current_sum + max_remaining[start_index] < target_val: return
-                
-            for i in range(start_index, len(pool_nums)):
-                if i > start_index and pool_nums[i] == pool_nums[i-1]:
-                    continue
-                    
-                path.append(pool_nums[i])
-                await backtrack(i + 1, current_sum + pool_nums[i], path)
-                path.pop()
+                # Només guardem camins que tinguin almenys un element triat
+                if len(path_idx) > 0:
+                    millors_aproximacions.append((dif_total, curr_sum_A, curr_sum_B, set(path_idx)))
 
-        await backtrack(0, 0, [])
+            if start_index >= len(pool_items): return
+            
+            # Poda de seguretat (només s'aplica si hi ha més de 20 elements per no penjar l'eina)
+            if len(pool_items) > 20:
+                if curr_sum_A + min_rem_A[start_index] > target_val: return
+                if curr_sum_A + max_rem_A[start_index] < target_val: return
+                
+                if is_doble:
+                    if curr_sum_B + min_rem_B[start_index] > target_val_b: return
+                    if curr_sum_B + max_rem_B[start_index] < target_val_b: return
+                
+            for i in range(start_index, len(pool_items)):
+                path_idx.append(pool_items[i][2])
+                await backtrack(i + 1, curr_sum_A + pool_items[i][0], curr_sum_B + pool_items[i][1], path_idx)
+                path_idx.pop()
+
+        await backtrack(0, 0, 0, [])
         
-        if not solucions:
-            output_div.innerHTML = f"No s'ha trobat cap combinació per a <b>{formatar_num(target_val/100)}</b> després de {iteracions} salts avaluats."
+        # 3. Presentació dels resultats (Exactes o Aproximacions)
+        es_aproximacio = False
+        llista_a_mostrar = solucions_indexos
+
+        if not solucions_indexos:
+            es_aproximacio = True
+            # Ordenem les aproximacions per menor diferència absoluta i agafem les 10 millors unificades
+            millors_aproximacions.sort(key=lambda x: x[0])
+            vistes = []
+            llista_a_mostrar = []
+            sumes_A_aprox = []
+            sumes_B_aprox = []
+            
+            for dif, sumA, sumB, p_set in millors_aproximacions:
+                if p_set not in vistes:
+                    vistes.append(p_set)
+                    llista_a_mostrar.append(p_set)
+                    sumes_A_aprox.append(sumA)
+                    sumes_B_aprox.append(sumB)
+                if len(llista_a_mostrar) == 10:
+                    break
+
+        if not llista_a_mostrar:
+            output_div.innerHTML = f"No s'ha trobat cap combinació ni aproximació després de {iteracions} salts avaluats."
+            return
+
+        limit_msg = " (Límit de càlculs assolit)" if (len(llista_a_mostrar) == 100 and not es_aproximacio) else ""
+        
+        # --- Càlcul de freqüències i rastreig de quina opció conté què ---
+        freqs = {}
+        opts_for_idx = {}
+        for c, p_set in enumerate(llista_a_mostrar):
+            for idx in p_set:
+                freqs[idx] = freqs.get(idx, 0) + 1
+                if idx not in opts_for_idx: opts_for_idx[idx] = []
+                opts_for_idx[idx].append(str(c))
+        
+        # Guardem el total d'opcions en un camp ocult pel filtre Javascript
+        html = f"<input type='hidden' id='cercador-num-opcions' data-total='{len(llista_a_mostrar)}'>"
+        
+        # Missatge d'avís
+        if es_aproximacio:
+            html += '<div class="alert-box" style="margin-bottom: 15px;">No s\'ha trobat cap combinació exacta. Aquestes són les 10 opcions que més s\'hi apropen:</div>'
+            html += f"<h3>Top {len(llista_a_mostrar)} aproximacions trobades:</h3>"
         else:
-            # CORRECCIÓ 3: Afegim l'avís si arribem al límit de 100
-            limit_msg = " (Límit de càlculs assolit)" if len(solucions) == 100 else ""
-            html = f"<h3>{len(solucions)} opcions trobades{limit_msg}:</h3>"
-            for idx, sol in enumerate(solucions, 1):
-                parts = [f"{formatar_num(x/100)}" for x in sol]
-                html += f'<div class="option-box"><b>Opció {idx}:</b><br>{" + ".join(parts)}</div>'
-            html += f"<p style='margin-top: 10px; font-size: 10px; color: #666;'>Càlcul resolt avaluant {iteracions} combinacions possibles.</p>"
-            output_div.innerHTML = html
+            html += f"<h3>{len(llista_a_mostrar)} opcions trobades{limit_msg}:</h3>"
+
+        # ====== RENDERITZAT SENZILL ======
+        if not is_doble:
+            html += '<div class="table-wrapper" style="max-height: 450px; overflow-y: auto;">'
+            html += '<table class="data-table" style="text-align: center; white-space: nowrap;">'
+            
+            # CAPÇALERA
+            html += "<thead><tr><th style='width: 1%; white-space: nowrap; padding: 0; position: sticky; left: 0; background: var(--bg-boto); z-index: 2; border-right: 3px double var(--vora-fosca);'>"
+            html += "<div style='display: grid; grid-template-columns: 90px 1fr; height: 100%;'>"
+            html += "<div style='display: flex; align-items: center; justify-content: center; gap: 10px; padding: 6px 10px; border-right: 1px solid var(--vora-separador);'><span style='font-size: 10px; font-weight: normal; width: 25px; text-align: center;'>Ús</span><span style='font-size: 10px; font-weight: normal;'>Filtre</span></div>"
+            html += "<div style='padding: 6px 20px 6px 15px; display: flex; align-items: center; justify-content: flex-start;'>Import Original</div>"
+            html += "</div></th>"
+            for i in range(len(llista_a_mostrar)): 
+                html += f"<th class='cercador-opt-{i}'>Opció {i+1}</th>"
+            html += "</tr></thead><tbody>"
+            
+            # FILES
+            for idx, val in enumerate(valors_originals_A):
+                count = freqs.get(idx, 0)
+                txt_count = "Tots" if count == len(llista_a_mostrar) else str(count)
+                opts_str = ",".join(opts_for_idx.get(idx, []))
+                
+                html += f"<tr><td style='width: 1%; white-space: nowrap; padding: 0; position: sticky; left: 0; background: var(--bg-input); z-index: 1; border-right: 3px double var(--vora-fosca); font-weight: bold;'>"
+                html += "<div style='display: grid; grid-template-columns: 90px 1fr; height: 100%;'>"
+                html += "<div style='display: flex; align-items: center; justify-content: center; gap: 10px; padding: 6px 10px; border-right: 1px solid var(--vora-separador);'>"
+                html += f"<span style='font-size: 10px; font-weight: normal; width: 25px; text-align: center; color: var(--vora-fosca);'>{txt_count if count > 0 else '-'}</span>"
+                if count > 0:
+                    html += f"<input type='checkbox' class='cercador-filter-chk' data-opts='{opts_str}' py-change='cercador_filtrar_opcions' style='margin: 0;'>"
+                else:
+                    html += f"<input type='checkbox' disabled style='opacity: 0.4; cursor: not-allowed; margin: 0;'>"
+                html += "</div>"
+                html += f"<div style='padding: 6px 20px 6px 15px; display: flex; align-items: center; justify-content: flex-start;'>{formatar_num(val/100)}</div>"
+                html += "</div></td>"
+                
+                for c in range(len(llista_a_mostrar)):
+                    if idx in llista_a_mostrar[c]: 
+                        html += f"<td class='cercador-opt-{c}' style='background-color: var(--bg-boto); font-weight: bold;'>{formatar_num(val/100)}</td>"
+                    else: 
+                        html += f"<td class='cercador-opt-{c}' style='opacity: 0.3;'>{formatar_num(val/100)}</td>"
+                html += "</tr>"
+            html += "</tbody><tfoot class='dist-tfoot'>"
+            
+            # PEU
+            if es_aproximacio:
+                html += "<tr><td style='width: 1%; white-space: nowrap; padding: 0; position: sticky; left: 0; background: var(--bg-boto); z-index: 2; border-right: 3px double var(--vora-fosca);'>"
+                html += "<div style='display: grid; grid-template-columns: 90px 1fr; height: 100%;'>"
+                html += "<div style='padding: 6px 10px; border-right: 1px solid var(--vora-separador);'></div>"
+                html += "<div style='padding: 6px 20px 6px 15px; display: flex; align-items: center; justify-content: flex-end;'>Suma Real</div>"
+                html += "</div></td>"
+                for c in range(len(llista_a_mostrar)): 
+                    html += f"<td class='cercador-opt-{c}' style='background-color: var(--bg-boto); font-weight: bold;'>{formatar_num(sumes_A_aprox[c]/100)}</td>"
+                html += "</tr>"
+                
+                html += "<tr><td style='width: 1%; white-space: nowrap; padding: 0; position: sticky; left: 0; background: var(--bg-boto); z-index: 2; border-right: 3px double var(--vora-fosca);'>"
+                html += "<div style='display: grid; grid-template-columns: 90px 1fr; height: 100%;'>"
+                html += "<div style='padding: 6px 10px; border-right: 1px solid var(--vora-separador);'></div>"
+                html += "<div style='padding: 6px 20px 6px 15px; display: flex; align-items: center; justify-content: flex-end;'>Diferència</div>"
+                html += "</div></td>"
+                for c in range(len(llista_a_mostrar)): 
+                    dif_val = (sumes_A_aprox[c] - target_val) / 100
+                    signe = "+" if dif_val > 0 else ""
+                    html += f"<td class='cercador-opt-{c}' style='background-color: var(--bg-boto); color: var(--text-principal); font-weight: bold;'>{signe}{formatar_num(dif_val)}</td>"
+                html += "</tr>"
+            else:
+                html += "<tr><td style='width: 1%; white-space: nowrap; padding: 0; position: sticky; left: 0; background: var(--bg-boto); z-index: 2; border-right: 3px double var(--vora-fosca);'>"
+                html += "<div style='display: grid; grid-template-columns: 90px 1fr; height: 100%;'>"
+                html += "<div style='padding: 6px 10px; border-right: 1px solid var(--vora-separador);'></div>"
+                html += "<div style='padding: 6px 20px 6px 15px; display: flex; align-items: center; justify-content: flex-end;'>Total Objectiu</div>"
+                html += "</div></td>"
+                for c in range(len(llista_a_mostrar)): 
+                    html += f"<td class='cercador-opt-{c}' style='background-color: var(--bg-boto); color: var(--text-principal);'>{formatar_num(target_val/100)}</td>"
+                html += "</tr>"
+                
+            html += "</tfoot></table></div>"
+        
+        # ====== RENDERITZAT DOBLE ======
+        else:
+            html += '<div class="table-wrapper" style="max-height: 450px; overflow-y: auto;">'
+            html += '<table class="data-table" style="text-align: center; white-space: nowrap; border-collapse: collapse;">'
+            
+            # CAPÇALERA
+            html += "<thead><tr><th style='width: 1%; white-space: nowrap; padding: 0; position: sticky; left: 0; background: var(--bg-boto); z-index: 2; border-right: 3px double var(--vora-fosca);'>"
+            html += "<div style='display: grid; grid-template-columns: 90px 1fr; height: 100%;'>"
+            html += "<div style='display: flex; align-items: center; justify-content: center; gap: 10px; padding: 5px 10px; border-right: 1px solid var(--vora-separador);'><span style='font-size: 10px; font-weight: normal; width: 25px; text-align: center;'>Ús</span><span style='font-size: 10px; font-weight: normal;'>Filtre</span></div>"
+            html += "<div style='padding: 5px 15px; display: flex; flex-direction: column; justify-content: center; width: 100%; box-sizing: border-box;'>"
+            html += "<div style='text-align: center; margin-bottom: 4px;'>Imports Originals</div>"
+            html += "<div style='display: grid; grid-template-columns: 1fr 1fr; text-align: right; border-top: 1px dotted var(--vora-separador); padding-top: 4px;'><span style='font-size:10px; font-weight:normal; padding-right: 10px; border-right: 1px solid var(--vora-separador);'>A</span><span style='font-size:10px; font-weight:normal; padding-left: 10px;'>B</span></div>"
+            html += "</div></div></th>"
+            for i in range(len(llista_a_mostrar)):
+                html += f"<th class='cercador-opt-{i}' style='padding: 5px 15px; border-right: 2px solid var(--vora-separador);'>"
+                html += f"<div style='text-align: center; margin-bottom: 4px;'>Opció {i+1}</div>"
+                html += "<div style='display: grid; grid-template-columns: 1fr 1fr; text-align: right; border-top: 1px dotted var(--vora-separador); padding-top: 4px;'><span style='font-size:10px; font-weight:normal; padding-right: 10px; border-right: 1px solid var(--vora-separador);'>A</span><span style='font-size:10px; font-weight:normal; padding-left: 10px;'>B</span></div>"
+                html += "</th>"
+            html += "</tr></thead><tbody>"
+            
+            # FILES
+            for idx, (valA, valB) in enumerate(zip(valors_originals_A, valors_originals_B)):
+                count = freqs.get(idx, 0)
+                txt_count = "Tots" if count == len(llista_a_mostrar) else str(count)
+                opts_str = ",".join(opts_for_idx.get(idx, []))
+                
+                txtA = formatar_num(valA/100) if valA != 0 else "-"
+                txtB = formatar_num(valB/100) if valB != 0 else "-"
+                
+                html += f"<tr><td style='width: 1%; white-space: nowrap; padding: 0; position: sticky; left: 0; background: var(--bg-input); z-index: 1; border-right: 3px double var(--vora-fosca);'>"
+                html += "<div style='display: grid; grid-template-columns: 90px 1fr; height: 100%;'>"
+                html += "<div style='display: flex; align-items: center; justify-content: center; gap: 10px; padding: 5px 10px; border-right: 1px solid var(--vora-separador);'>"
+                html += f"<span style='font-size: 10px; font-weight: normal; width: 25px; text-align: center; color: var(--vora-fosca);'>{txt_count if count > 0 else '-'}</span>"
+                if count > 0:
+                    html += f"<input type='checkbox' class='cercador-filter-chk' data-opts='{opts_str}' py-change='cercador_filtrar_opcions' style='margin: 0;'>"
+                else:
+                    html += f"<input type='checkbox' disabled style='opacity: 0.4; cursor: not-allowed; margin: 0;'>"
+                html += "</div>"
+                html += f"<div style='padding: 5px 15px; display: flex; align-items: center;'><div style='display: grid; grid-template-columns: 1fr 1fr; text-align: right; font-weight: bold; width: 100%;'><span style='padding-right: 10px; border-right: 1px solid var(--vora-separador);'>{txtA}</span><span style='padding-left: 10px;'>{txtB}</span></div></div>"
+                html += "</div></td>"
+                
+                for c in range(len(llista_a_mostrar)):
+                    if idx in llista_a_mostrar[c]:
+                        html += f"<td class='cercador-opt-{c}' style='background-color: var(--bg-boto); padding: 5px 15px; border-right: 2px solid var(--vora-separador);'><div style='display: grid; grid-template-columns: 1fr 1fr; text-align: right; font-weight: bold;'><span style='padding-right: 10px; border-right: 1px solid var(--vora-separador);'>{txtA}</span><span style='padding-left: 10px;'>{txtB}</span></div></td>"
+                    else:
+                        html += f"<td class='cercador-opt-{c}' style='opacity: 0.3; padding: 5px 15px; border-right: 2px solid var(--vora-separador);'><div style='display: grid; grid-template-columns: 1fr 1fr; text-align: right;'><span style='padding-right: 10px; border-right: 1px solid var(--vora-separador);'>{txtA}</span><span style='padding-left: 10px;'>{txtB}</span></div></td>"
+                html += "</tr>"
+            html += "</tbody><tfoot class='dist-tfoot'>"
+            
+            # PEU
+            if es_aproximacio:
+                html += f"<tr><td style='width: 1%; white-space: nowrap; padding: 0; position: sticky; left: 0; background: var(--bg-boto); z-index: 2; border-right: 3px double var(--vora-fosca);'>"
+                html += "<div style='display: grid; grid-template-columns: 90px 1fr; height: 100%;'>"
+                html += "<div style='padding: 5px 10px; border-right: 1px solid var(--vora-separador);'></div>"
+                html += "<div style='padding: 5px 15px; display: flex; align-items: center;'><div style='display: grid; grid-template-columns: 1fr 1fr; text-align: right; width: 100%;'><span style='padding-right: 10px; border-right: 1px solid var(--vora-separador);'>Suma Real A</span><span style='padding-left: 10px;'>Suma Real B</span></div></div>"
+                html += "</div></td>"
+                for c in range(len(llista_a_mostrar)):
+                    txtRealA = formatar_num(sumes_A_aprox[c]/100)
+                    txtRealB = formatar_num(sumes_B_aprox[c]/100)
+                    html += f"<td class='cercador-opt-{c}' style='background-color: var(--bg-boto); color: var(--text-principal); padding: 5px 15px; border-right: 2px solid var(--vora-separador);'><div style='display: grid; grid-template-columns: 1fr 1fr; text-align: right; font-weight: bold;'><span style='padding-right: 10px; border-right: 1px solid var(--vora-separador);'>{txtRealA}</span><span style='padding-left: 10px;'>{txtRealB}</span></div></td>"
+                html += "</tr>"
+                
+                html += f"<tr><td style='width: 1%; white-space: nowrap; padding: 0; position: sticky; left: 0; background: var(--bg-boto); z-index: 2; border-right: 3px double var(--vora-fosca);'>"
+                html += "<div style='display: grid; grid-template-columns: 90px 1fr; height: 100%;'>"
+                html += "<div style='padding: 5px 10px; border-right: 1px solid var(--vora-separador);'></div>"
+                html += "<div style='padding: 5px 15px; display: flex; align-items: center;'><div style='display: grid; grid-template-columns: 1fr 1fr; text-align: right; width: 100%;'><span style='padding-right: 10px; border-right: 1px solid var(--vora-separador);'>Diferència A</span><span style='padding-left: 10px;'>Diferència B</span></div></div>"
+                html += "</div></td>"
+                for c in range(len(llista_a_mostrar)):
+                    difA = (sumes_A_aprox[c] - target_val) / 100
+                    difB = (sumes_B_aprox[c] - target_val_b) / 100
+                    sigA = "+" if difA > 0 else ""
+                    sigB = "+" if difB > 0 else ""
+                    html += f"<td class='cercador-opt-{c}' style='background-color: var(--bg-boto); color: var(--text-principal); padding: 5px 15px; border-right: 2px solid var(--vora-separador);'><div style='display: grid; grid-template-columns: 1fr 1fr; text-align: right; font-weight: bold;'><span style='padding-right: 10px; border-right: 1px solid var(--vora-separador);'>{sigA}{formatar_num(difA)}</span><span style='padding-left: 10px;'>{sigB}{formatar_num(difB)}</span></div></td>"
+                html += "</tr>"
+            else:
+                html += f"<tr><td style='width: 1%; white-space: nowrap; padding: 0; position: sticky; left: 0; background: var(--bg-boto); z-index: 2; border-right: 3px double var(--vora-fosca);'>"
+                html += "<div style='display: grid; grid-template-columns: 90px 1fr; height: 100%;'>"
+                html += "<div style='padding: 5px 10px; border-right: 1px solid var(--vora-separador);'></div>"
+                html += "<div style='padding: 5px 15px; display: flex; align-items: center;'><div style='display: grid; grid-template-columns: 1fr 1fr; text-align: right; width: 100%;'><span style='padding-right: 10px; border-right: 1px solid var(--vora-separador);'>Total A</span><span style='padding-left: 10px;'>Total B</span></div></div>"
+                html += "</div></td>"
+                for c in range(len(llista_a_mostrar)):
+                    txtTgtA = formatar_num(target_val/100)
+                    txtTgtB = formatar_num(target_val_b/100)
+                    html += f"<td class='cercador-opt-{c}' style='background-color: var(--bg-boto); color: var(--text-principal); padding: 5px 15px; border-right: 2px solid var(--vora-separador);'><div style='display: grid; grid-template-columns: 1fr 1fr; text-align: right;'><span style='padding-right: 10px; border-right: 1px solid var(--vora-separador);'>{txtTgtA}</span><span style='padding-left: 10px;'>{txtTgtB}</span></div></td>"
+                html += "</tr>"
+                
+            html += "</tfoot></table></div>"
+            
+        html += f"<p style='margin-top: 10px; font-size: 10px; color: #666;'>Càlcul resolt avaluant {iteracions} combinacions possibles.</p>"
+        output_div.innerHTML = html
 
     # ==========================================
     # TOOL 7: VALIDADOR DNI
@@ -1621,6 +1953,37 @@
     # ==========================================
     ETIQUETES_DISPONIBLES = []
 
+    def render_etiquetes_visuals():
+        global ETIQUETES_DISPONIBLES
+        contenidor = document.querySelector("#contenidor-etiquetes")
+        contenidor.innerHTML = ""
+        
+        if not ETIQUETES_DISPONIBLES:
+            contenidor.innerHTML = '<span style="color: var(--vora-separador); font-size: 11px; font-style: italic;">Cap etiqueta creada.</span>'
+            return
+            
+        for etiq in ETIQUETES_DISPONIBLES:
+            div = document.createElement("div")
+            div.style.cssText = "display: inline-flex; align-items: center; background-color: var(--bg-boto); border: 1px solid var(--vora-fosca); padding: 2px 6px; font-size: 11px;"
+            # Creem el botonet vermell per esborrar
+            div.innerHTML = f'<span style="margin-right: 5px;">{etiq}</span><button data-etiq="{etiq}" style="background: none; border: none; padding: 0 4px; margin: 0; color: #d00; font-weight: bold; cursor: pointer; height: auto;" title="Esborra etiqueta">X</button>'
+            # L'enllacem a la funció d'esborrat
+            btn = div.querySelector("button")
+            btn.onclick = esborrar_etiqueta
+            contenidor.appendChild(div)
+
+    def esborrar_etiqueta(event):
+        global ETIQUETES_DISPONIBLES
+        etiq_a_esborrar = event.target.getAttribute("data-etiq")
+        if etiq_a_esborrar in ETIQUETES_DISPONIBLES:
+            ETIQUETES_DISPONIBLES.remove(etiq_a_esborrar)
+            # Refem les visuals
+            render_etiquetes_visuals()
+            # Actualitzem els selectors de les taules (les que tinguin l'esborrada perdran la selecció i tornaran al valor per defecte)
+            actualitzar_desplegables()
+            # Recalculem el quadre de resums
+            actualitzar_resum_columnes(None)
+
     def afegir_etiqueta(event):
         global ETIQUETES_DISPONIBLES
         input_el = document.querySelector("#nova-etiqueta")
@@ -1630,12 +1993,13 @@
             ETIQUETES_DISPONIBLES.append(nova_etiq)
             input_el.value = ""
             actualitzar_desplegables()
+            render_etiquetes_visuals()
 
     def actualitzar_desplegables():
         global ETIQUETES_DISPONIBLES
         selects = document.querySelectorAll(".etiqueta-select")
         
-        # Actualitzem cada desplegable mantenint la selecció prèvia
+        # Actualitzem cada desplegable mantenint la selecció prèvia (si encara existeix)
         for sel in selects:
             valor_actual = sel.value
             html_options = '<option value="">-- Sense etiqueta --</option>'
@@ -1646,39 +2010,60 @@
 
     def processar_columnes(event):
         global ETIQUETES_DISPONIBLES
-        raw_text = document.querySelector("#calc-col-input").value
+        raw_imports = document.querySelector("#calc-col-input").value
+        raw_texts = document.querySelector("#calc-text-input").value
         tbody = document.querySelector("#calc-col-body")
         
-        if not raw_text.strip(): return
+        if not raw_imports.strip(): return
 
-        lines = raw_text.strip().split('\n')
+        # 1. Guardem les etiquetes actuals abans de repintar la taula
+        seleccions_previes = []
+        files_actuals = document.querySelectorAll("#calc-col-body tr")
+        for fila in files_actuals:
+            select_el = fila.querySelector(".etiqueta-select")
+            if select_el:
+                seleccions_previes.append(select_el.value)
+
+        lines_imports = raw_imports.strip().split('\n')
+        lines_texts = raw_texts.split('\n')
+        
         html_rows = ""
+        valid_count = 0
         
-        # Preparem les opcions base pels nous desplegables
-        options_base = '<option value="">-- Sense etiqueta --</option>'
-        for etiq in ETIQUETES_DISPONIBLES:
-            options_base += f'<option value="{etiq}">{etiq}</option>'
-        
-        for line in lines:
+        for i, line in enumerate(lines_imports):
             val_net = netejar_nombre(line)
             if val_net is not None:
+                concepte = lines_texts[i].strip() if i < len(lines_texts) else ""
+                concepte = concepte.replace("<", "&lt;").replace(">", "&gt;")
+                
+                # 2. Recuperem l'etiqueta que tenia assignada aquesta fila si existeix
+                seleccio = seleccions_previes[valid_count] if valid_count < len(seleccions_previes) else ""
+                
+                # 3. Construïm les opcions del select marcant la prèvia automàticament
+                options_html = '<option value="">-- Sense etiqueta --</option>'
+                for etiq in ETIQUETES_DISPONIBLES:
+                    sel_attr = 'selected="selected"' if etiq == seleccio else ""
+                    options_html += f'<option value="{etiq}" {sel_attr}>{etiq}</option>'
+                
                 html_rows += f"""
                 <tr>
-                    <td class="col-xifra" data-val="{val_net}" style="text-align: right;">{formatar_num(val_net / 100)}</td>
+                    <td class="col-xifra" data-val="{val_net}" style="text-align: right; font-weight: bold;">{formatar_num(val_net / 100)}</td>
+                    <td>{concepte}</td>
                     <td>
                         <select class="input-verd etiqueta-select" py-change="actualitzar_resum_columnes" style="padding: 2px; width: 100%;">
-                            {options_base}
+                            {options_html}
                         </select>
                     </td>
                 </tr>
                 """
+                valid_count += 1
                 
         if html_rows:
             tbody.innerHTML = html_rows
             document.querySelector("#calc-col-summary-box").style.display = "block"
             actualitzar_resum_columnes(None)
         else:
-            tbody.innerHTML = '<tr><td colspan="2" style="text-align: center;">No s\'ha detectat cap número vàlid.</td></tr>'
+            tbody.innerHTML = '<tr><td colspan="3" style="text-align: center;">No s\'ha detectat cap número vàlid.</td></tr>'
 
     def actualitzar_resum_columnes(event):
         files = document.querySelectorAll("#calc-col-body tr")
@@ -1812,7 +2197,7 @@
 
     </script>
 	<div style="text-align: center; padding: 10px 10px 20px 10px; font-size: 10px; line-height: 1.4; opacity: 0.6; clear: both;">
-        Creat per David Vidal Viladoms + Gemini — Versió 1.1.16
+        Creat per David Vidal Viladoms + Gemini — Versió 1.1.17
     </div>
 </body>
 </html>
