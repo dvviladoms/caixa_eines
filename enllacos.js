@@ -31,6 +31,11 @@ const dadesEnllacos = [
         titol: "Códigos Postales", 
         url: "https://www.codigospostales.com/mapfus.html", 
         descripcio: "Consulta de delimitacions de codis postals." 
+      },
+      { 
+        titol: "Código Postal", 
+        url: "https://codigo-postal.co/espana/", 
+        descripcio: "Consulta de delimitacions de codis postals." 
       }
     ]
   },
