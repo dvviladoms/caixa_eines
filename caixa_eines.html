@@ -6,7 +6,6 @@
     <title>Caixa d'Eines</title>
 	<link rel="icon" type="image/x-icon" href="favicon_eines.ico">
 
-    
     <style>
         :root {
             --bg-finestra: #f5f5f7;
@@ -68,11 +67,14 @@
         .justify-end { justify-content: flex-end; }
         .flex-wrap { flex-wrap: wrap; }
         .flex-1 { flex: 1; }
+        .flex-shrink-0 { flex-shrink: 0; }
+        .min-w-0 { min-width: 0; }
         .gap-1 { gap: 4px; }
         .gap-2 { gap: 8px; }
         .gap-3 { gap: 12px; }
         
         .m-0 { margin: 0; }
+        .mt-0 { margin-top: 0; }
         .mt-1 { margin-top: 4px; }
         .mt-2 { margin-top: 8px; }
         .mt-3 { margin-top: 15px; }
@@ -111,6 +113,7 @@
         
         .hidden { display: none !important; }
         .scroll-y { overflow-y: auto; }
+        .scroll-x { overflow-x: auto; max-width: 100%; }
         .bg-finestra { background-color: var(--bg-finestra); }
         .bg-targeta { background-color: var(--bg-targeta); }
         .bg-boto { background-color: var(--bg-boto); }
@@ -130,6 +133,7 @@
             position: relative;
             display: flex;
             flex-direction: column;
+            overflow: hidden;
         }
 
         header {
@@ -165,6 +169,7 @@
             font-size: 13px;
             cursor: pointer;
             transition: background-color 0.2s, color 0.2s;
+            white-space: nowrap;
         }
         button:hover { background-color: var(--bg-boto-hover); }
 
@@ -196,27 +201,6 @@
             padding: 3px 8px;
             font-size: 12px;
         }
-
-        #config-menu {
-            display: none;
-            position: absolute;
-            top: 55px;
-            right: 10px;
-            background-color: var(--bg-targeta);
-            border: 1px solid var(--vora);
-            border-radius: 8px;
-            box-shadow: 0 4px 15px var(--ombra);
-            padding: 15px;
-            width: 250px;
-            max-width: calc(100vw - 60px);
-            max-height: calc(100vh - 80px);
-            overflow-y: auto;
-            z-index: 100;
-        }
-        #config-menu.show { display: block; }
-        .config-item { margin-bottom: 12px; }
-        .config-item:last-child { margin-bottom: 0; }
-        .config-item label { display: block; font-size: 12px; font-weight: 600; margin-bottom: 5px; color: var(--text-secundari); }
 
         main {
             padding: 16px;
@@ -259,7 +243,7 @@
         .grup-enllacos a { color: var(--accent); text-decoration: none; font-weight: 500; }
         .grup-enllacos a:hover { text-decoration: underline; }
         
-        .error-box { color: var(--error-text); padding: 12px; border: 1px solid var(--error-text); border-radius: 6px; background: var(--error-bg); font-size: 13px; }
+        .error-box { color: var(--error-text); padding: 12px; border: 1px solid var(--error-text); border-radius: 6px; background: var(--error-bg); font-size: 13px; word-break: break-word; }
         .succes-box { color: var(--succes-text); padding: 12px; border: 1px solid var(--succes-text); border-radius: 6px; background: var(--succes-bg); font-size: 13px; text-align: center; }
 
         .taula-dist { width: 100%; border-collapse: collapse; font-size: 11px; text-align: right; white-space: nowrap; }
@@ -274,13 +258,89 @@
         .calc-grid-row { display: flex; flex-direction: column; gap: 8px; margin-bottom: 15px; padding-bottom: 15px; border-bottom: 1px dashed var(--vora); position: relative; }
         .editable-label { border: none; background: transparent; color: var(--text-secundari); font-weight: 600; font-size: 12px; padding: 0; display: block; width: 100%; }
         .editable-label:focus { outline: none; color: var(--text-principal); }
-        .btn-calc-row { background-color: var(--accent); color: white; font-weight: bold; font-size: 1.1rem; width: 40px; height: 31px; display: flex; align-items: center; justify-content: center; }
+        .btn-calc-row { background-color: var(--accent); color: white; font-weight: bold; font-size: 1.1rem; width: 40px; height: 31px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
         .btn-calc-row:hover { background-color: var(--accent-hover); }
-        .resultat-calc-box { display: flex; align-items: center; justify-content: space-between; background-color: var(--bg-finestra); border: 1px solid var(--vora); border-radius: 6px; padding: 4px 8px; min-height: 31px; }
-        .resultat-numero { font-weight: 600; font-size: 14px; color: var(--text-principal); text-align: right; flex: 1; }
+        
+        .resultat-calc-box { 
+            display: flex; 
+            align-items: center; 
+            justify-content: space-between; 
+            background-color: var(--bg-finestra); 
+            border: 1px solid var(--vora); 
+            border-radius: 6px; 
+            padding: 4px 8px; 
+            min-height: 31px; 
+            gap: 8px; 
+        }
+        .resultat-numero { 
+            font-weight: 600; 
+            font-size: 14px; 
+            color: var(--text-principal); 
+            text-align: right; 
+            flex: 1; 
+            min-width: 0; 
+            word-break: break-all; 
+            overflow-wrap: anywhere; 
+        }
         .error-text-calc { color: var(--error-text) !important; }
 
-        footer { text-align: center; padding: 10px; font-size: 10px; color: var(--text-secundari); border-top: 1px solid var(--vora); background-color: var(--bg-targeta); border-radius: 0 0 11px 11px; }
+        footer { 
+            text-align: center; 
+            padding: 8px 12px; 
+            font-size: 10px; 
+            color: var(--text-secundari); 
+            border-top: 1px solid var(--vora); 
+            background-color: var(--bg-targeta); 
+            border-radius: 0 0 11px 11px; 
+        }
+
+        .footer-config-bar {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-bottom: 6px;
+        }
+
+        .footer-cfg-item {
+            display: inline-flex;
+            align-items: center;
+            gap: 3px;
+            color: var(--text-secundari);
+            font-size: 11px;
+            cursor: pointer;
+        }
+
+        .select-discret {
+            background-color: transparent;
+            border: 1px solid transparent;
+            border-radius: 4px;
+            padding: 1px 3px;
+            font-size: 10px;
+            color: var(--text-secundari);
+            cursor: pointer;
+            width: auto;
+            outline: none;
+            transition: all 0.2s ease;
+        }
+
+        .select-discret:hover, .select-discret:focus {
+            background-color: var(--bg-finestra);
+            border-color: var(--vora);
+            color: var(--text-principal);
+        }
+
+        .select-discret option {
+            background-color: var(--bg-targeta);
+            color: var(--text-principal);
+        }
+
+        .footer-sep {
+            opacity: 0.35;
+            font-size: 9px;
+            user-select: none;
+        }
     </style>
 </head>
 <body>
@@ -293,7 +353,6 @@
                 </div>
                 <div class="d-flex gap-2">
                     <button id="btn-obrir-finestra" class="btn-icona" aria-label="Obre en una finestra flotant" title="Obre en una finestra flotant">↗️</button>
-                    <button id="btn-toggle-config" class="btn-icona" aria-label="Obre la configuració" title="Configuració">⚙️</button>
                 </div>
             </div>
             
@@ -309,30 +368,6 @@
                 <option value="tab-recurrencia">Identificador de Recurrència</option>
             </select>
         </header>
-
-        <div id="config-menu">
-            <div class="d-flex justify-between align-center mb-2 pb-1 border-bottom">
-                <h3 class="m-0 text-lg">Configuració</h3>
-                <button id="btn-tancar-config" class="btn-petit p-1" aria-label="Tanca la configuració">✕</button>
-            </div>
-            
-            <div class="config-item">
-                <label for="selector-tema">Tema visual:</label>
-                <select id="selector-tema">
-                    <option value="defecte">Clar</option>
-                    <option value="fosc">Fosc</option>
-                </select>
-            </div>
-
-            <div class="config-item">
-                <label for="format-global">Format numèric:</label>
-                <select id="format-global">
-                    <option value="dos_decimals_eur">1.234,56 (€)</option>
-                    <option value="dos_decimals_eng">1,234.56 ($)</option>
-                    <option value="general">General</option>
-                </select>
-            </div>
-        </div>
 
         <main id="contingut-eines">
             <div id="tab-enllacos" class="eina-content activa">
@@ -421,7 +456,7 @@
                         <label for="agrup-nova-etiq">Crea una nova etiqueta:</label>
                         <div class="d-flex gap-2 align-center">
                             <input type="text" id="agrup-nova-etiq" class="flex-1" placeholder="Nom de l'etiqueta...">
-                            <button id="btn-add-etiq" class="btn-secundari text-nowrap">+ Afegeix</button>
+                            <button id="btn-add-etiq" class="btn-secundari text-nowrap flex-shrink-0">+ Afegeix</button>
                         </div>
                     </div>
                     <div id="agrup-etiquetes-container" class="d-flex flex-wrap gap-1 mt-2 hidden"></div>
@@ -477,9 +512,9 @@
                 <button id="btn-run-reemplac" class="btn-ample">Reemplaça i Mostra</button>
 
                 <div id="res-reemplac" class="resultat-box hidden p-0">
-                    <div class="d-flex justify-between align-center p-2 border-bottom bg-finestra">
+                    <div class="d-flex justify-between align-center p-2 border-bottom bg-finestra flex-wrap gap-1">
                         <span class="text-md font-bold">Text Modificat</span>
-                        <div class="d-flex gap-1">
+                        <div class="d-flex gap-1 flex-shrink-0">
                             <button id="btn-copy-reemplac" class="btn-secundari btn-petit">Copia</button>
                             <button id="btn-csv-reemplac" class="btn-secundari btn-petit">Baixa .csv</button>
                         </div>
@@ -501,14 +536,14 @@
                 <button id="btn-run-dni" class="btn-ample">Valida Llistat</button>
 
                 <div id="res-dni" class="resultat-box hidden p-0">
-                    <div class="d-flex justify-between align-center p-2 border-bottom bg-finestra">
-                        <div class="d-flex align-center gap-2">
+                    <div class="d-flex justify-between align-center p-2 border-bottom bg-finestra flex-wrap gap-1">
+                        <div class="d-flex align-center gap-2 min-w-0">
                             <span class="text-md font-bold">Resultats</span>
                             <label class="text-sm d-flex align-center gap-1 m-0 font-normal">
                                 <input type="checkbox" id="filter-errors-dni" class="m-0 w-auto"> Només errors
                             </label>
                         </div>
-                        <div class="d-flex gap-1">
+                        <div class="d-flex gap-1 flex-shrink-0">
                             <button id="btn-txt-dni" class="btn-secundari btn-petit">Baixa .txt</button>
                             <button id="btn-csv-dni" class="btn-secundari btn-petit">Baixa .csv</button>
                         </div>
@@ -543,10 +578,10 @@
                         </div>
                     </div>
                     <textarea id="llistador-output" class="font-mono mt-2 text-sm h-sm" placeholder="El llistat d'arxius es mostrarà aquí..."></textarea>
-                    <div class="d-flex gap-2 mt-1">
-                        <button id="btn-copy-llistador" class="btn-secundari btn-petit">Copia</button>
-                        <button id="btn-env-a" class="btn-secundari btn-petit flex-1">↓ Envia a Llista A</button>
-                        <button id="btn-env-b" class="btn-secundari btn-petit flex-1">↓ Envia a Llista B</button>
+                    <div class="d-flex gap-2 mt-1 flex-wrap">
+                        <button id="btn-copy-llistador" class="btn-secundari btn-petit flex-shrink-0">Copia</button>
+                        <button id="btn-env-a" class="btn-secundari btn-petit flex-1 min-w-0">↓ Envia a Llista A</button>
+                        <button id="btn-env-b" class="btn-secundari btn-petit flex-1 min-w-0">↓ Envia a Llista B</button>
                     </div>
                 </div>
 
@@ -566,9 +601,9 @@
                 </div>
 
                 <div id="res-comparador" class="resultat-box hidden p-0">
-                    <div class="d-flex justify-between align-center p-2 border-bottom bg-finestra">
+                    <div class="d-flex justify-between align-center p-2 border-bottom bg-finestra flex-wrap gap-1">
                         <span class="text-md font-bold">Resultats</span>
-                        <div class="d-flex gap-1">
+                        <div class="d-flex gap-1 flex-shrink-0">
                             <button id="btn-copy-comp" class="btn-secundari btn-petit">Copia</button>
                             <button id="btn-txt-comp" class="btn-secundari btn-petit">Baixa .txt</button>
                             <button id="btn-csv-comp" class="btn-secundari btn-petit">Baixa .csv</button>
@@ -599,9 +634,9 @@
                 </div>
                 <button id="btn-run-rec" class="btn-ample">Cerca Recurrències</button>
                 <div id="res-recurrencia" class="resultat-box hidden p-0">
-                    <div class="d-flex justify-between align-center p-2 border-bottom bg-finestra">
+                    <div class="d-flex justify-between align-center p-2 border-bottom bg-finestra flex-wrap gap-1">
                         <span class="text-md font-bold">Resultats d'Anàlisi</span>
-                        <button id="btn-csv-rec" class="btn-secundari btn-petit">Baixa .csv</button>
+                        <button id="btn-csv-rec" class="btn-secundari btn-petit flex-shrink-0">Baixa .csv</button>
                     </div>
                     <div class="scroll-y" style="max-height: 250px;">
                         <table class="taula-dist text-left w-100">
@@ -620,7 +655,43 @@
             </div>
         </main>
 
-        <footer>David Vidal Viladoms (+Gemini) — Nuad Gestión — Versió 1.2.2</footer>
+        <footer>
+            <div class="footer-config-bar">
+                <label class="footer-cfg-item" title="Separador decimal i milers">
+                    <span>#️⃣</span>
+                    <select id="selector-separador" class="select-discret">
+                        <option value="coma" selected>1.234,56</option>
+                        <option value="punt">1,234.56</option>
+                    </select>
+                </label>
+                <span class="footer-sep">•</span>
+                <label class="footer-cfg-item" title="Decimals d'arrodoniment">
+                    <span>🔢</span>
+                    <select id="selector-decimals" class="select-discret">
+                        <option value="0">0 dec</option>
+                        <option value="1">1 dec</option>
+                        <option value="2" selected>2 dec</option>
+                        <option value="3">3 dec</option>
+                        <option value="4">4 dec</option>
+                        <option value="5">5 dec</option>
+                        <option value="6">6 dec</option>
+                        <option value="7">7 dec</option>
+                        <option value="8">8 dec</option>
+                        <option value="9">9 dec</option>
+                        <option value="10">10 dec</option>
+                    </select>
+                </label>
+                <span class="footer-sep">•</span>
+                <label class="footer-cfg-item" title="Tema visual">
+                    <span>🎨</span>
+                    <select id="selector-tema" class="select-discret">
+                        <option value="defecte">Clar</option>
+                        <option value="fosc">Fosc</option>
+                    </select>
+                </label>
+            </div>
+            <div>David Vidal Viladoms (+Gemini) — Nuad Gestión — Versió 1.2.3</div>
+        </footer>
     </div>
 
     <script src="enllacos.js"></script>
@@ -638,11 +709,17 @@
                 return temp.innerHTML;
             },
             formatNum: (val) => {
-                if (isNaN(val)) return "Error";
-                const format = document.getElementById('format-global').value;
-                if (format === 'dos_decimals_eur') return new Intl.NumberFormat('ca-ES', { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(val);
-                if (format === 'dos_decimals_eng') return new Intl.NumberFormat('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(val);
-                return val.toString().replace('.', ',');
+                if (val === null || val === undefined || isNaN(val)) return "Error";
+                const decimalsEl = document.getElementById('selector-decimals');
+                const separadorEl = document.getElementById('selector-separador');
+                const dec = decimalsEl ? parseInt(decimalsEl.value, 10) : 2;
+                const sep = separadorEl ? separadorEl.value : 'coma';
+                
+                const locale = sep === 'punt' ? 'en-US' : 'de-DE';
+                return new Intl.NumberFormat(locale, {
+                    minimumFractionDigits: dec,
+                    maximumFractionDigits: dec
+                }).format(val);
             },
             cleanNum: (text) => {
                 if (!text) return null;
@@ -678,22 +755,15 @@
 
         document.addEventListener('DOMContentLoaded', () => {
             document.getElementById('selector-tema').value = localStorage.getItem('eines_tema') || 'defecte';
-            document.getElementById('format-global').value = localStorage.getItem('eines_format') || 'dos_decimals_eur';
+            document.getElementById('selector-decimals').value = localStorage.getItem('eines_decimals') || '2';
+            document.getElementById('selector-separador').value = localStorage.getItem('eines_separador') || 'coma';
             UI.applyTheme();
 
             document.getElementById('selector-eines').addEventListener('change', UI.changeTool);
-            document.getElementById('btn-toggle-config').addEventListener('click', UI.toggleConfig);
-            document.getElementById('btn-tancar-config').addEventListener('click', UI.toggleConfig);
             document.getElementById('selector-tema').addEventListener('change', UI.applyTheme);
-            document.getElementById('format-global').addEventListener('change', UI.saveFormat);
+            document.getElementById('selector-decimals').addEventListener('change', UI.saveFormat);
+            document.getElementById('selector-separador').addEventListener('change', UI.saveFormat);
             document.getElementById('btn-obrir-finestra').addEventListener('click', UI.openPopup);
-
-            document.addEventListener('click', (e) => {
-                const menu = document.getElementById('config-menu');
-                if (!menu.contains(e.target) && !e.target.closest('#btn-toggle-config')) {
-                    menu.classList.remove('show');
-                }
-            });
 
             setTimeout(Tools.renderLinks, 100);
 
@@ -745,16 +815,17 @@
                 document.querySelectorAll('.eina-content').forEach(el => el.classList.remove('activa'));
                 document.getElementById(id).classList.add('activa');
             },
-            toggleConfig: () => document.getElementById('config-menu').classList.toggle('show'),
             applyTheme: () => {
                 const tema = document.getElementById('selector-tema').value;
                 document.documentElement.setAttribute('data-theme', tema);
                 localStorage.setItem('eines_tema', tema);
             },
             saveFormat: () => {
-                localStorage.setItem('eines_format', document.getElementById('format-global').value);
+                localStorage.setItem('eines_decimals', document.getElementById('selector-decimals').value);
+                localStorage.setItem('eines_separador', document.getElementById('selector-separador').value);
                 if (!document.getElementById('res-calculadora').classList.contains('hidden')) Tools.calcInvoice();
                 if (!document.getElementById('res-distribucio').classList.contains('hidden')) Tools.calcDistribution();
+                if (document.getElementById('nodedu-pct').value) Tools.updateDeduAuto();
                 Tools.recalcAllCalcRows();
             },
             openPopup: () => window.open(window.location.href, '_blank', 'width=420,height=650,menubar=no,toolbar=no,location=no,status=no,scrollbars=yes,resizable=yes')
@@ -789,18 +860,16 @@
                         <button class="btn-perill btn-del-calc" title="Eliminar fila">✕</button>
                     </div>
                     <div class="d-flex gap-2 w-100 relative">
-                        <input type="text" class="input-calcul font-mono flex-1" placeholder="Ex: 150.50 + 25" 
+                        <input type="text" class="input-calcul font-mono flex-1 min-w-0" placeholder="Ex: 150.50 + 25" 
                                oninput="window.checkCalcChanges('${id}')" 
                                onkeydown="if(event.key==='Enter') window.evalCalcRow('${id}')">
                         <button class="btn-calc-row" onclick="window.evalCalcRow('${id}')" title="Calcular">=</button>
                     </div>
                     <div class="resultat-calc-box mt-1">
-                        <span class="text-sm label-calc-row color-secundari">Resultat:</span>
-                        <div class="d-flex align-center gap-2">
-                            <span class="resultat-numero">0</span>
-                            <button class="btn-secundari btn-petit p-1" onclick="window.copyCalc('${id}')" title="Copia el resultat">Copia</button>
-                        </div>
+                        <span class="resultat-numero">0</span>
+                        <button class="btn-secundari btn-petit p-1 flex-shrink-0" onclick="window.copyCalc('${id}')" title="Copia el resultat">Copia</button>
                     </div>
+                    <div class="label-calc-row text-sm mt-1" style="color: var(--warning-text); font-weight: 600; display: none;"></div>
                 `;
                 div.querySelector('.btn-del-calc').addEventListener('click', () => { div.remove(); delete AppState.calcMultiple[id]; });
                 document.getElementById('llista-calculs').appendChild(div);
@@ -847,9 +916,9 @@
                 const row = document.createElement('div');
                 row.className = 'd-flex gap-2 mb-2 align-center';
                 row.innerHTML = `
-                    <input type="text" class="dist-proj-name flex-1" placeholder="Proj. ${c.children.length + 1}">
+                    <input type="text" class="dist-proj-name flex-1 min-w-0" placeholder="Proj. ${c.children.length + 1}">
                     <input type="number" class="dist-proj-val" placeholder="Cost" step="any" style="width: 100px;">
-                    <button class="btn-perill" title="Elimina projecte">✕</button>
+                    <button class="btn-perill flex-shrink-0" title="Elimina projecte">✕</button>
                 `;
                 c.appendChild(row);
             },
@@ -936,9 +1005,9 @@
                     minRem[i] = minRem[i + 1] + (v < 0 ? v : 0);
                 }
 
-                let globalHtml = `<div class="d-flex justify-between align-center p-2 border-bottom bg-finestra">
+                let globalHtml = `<div class="d-flex justify-between align-center p-2 border-bottom bg-finestra flex-wrap gap-1">
                     <span class="text-md font-bold">Resultats Cercador</span>
-                    <button class="btn-secundari btn-petit" onclick="Tools.exportCSV(AppState.cercadorCSV, 'cercador_combinacions')">Baixa .csv</button>
+                    <button class="btn-secundari btn-petit flex-shrink-0" onclick="Tools.exportCSV(AppState.cercadorCSV, 'cercador_combinacions')">Baixa .csv</button>
                 </div><div class="p-3">`;
 
                 AppState.cercadorCSV = [];
@@ -1074,7 +1143,7 @@
                     c.classList.remove('hidden');
                     c.innerHTML = '';
                     AppState.agrupEtiquetes.forEach(t => {
-                        c.innerHTML += `<div class="bg-boto border-box p-1 text-sm d-flex align-center gap-1"><span>${t}</span><button class="btn-perill btn-petit btn-del-etiq p-0" data-tag="${t}">✕</button></div>`;
+                        c.innerHTML += `<div class="bg-boto border-box p-1 text-sm d-flex align-center gap-1"><span>${t}</span><button class="btn-perill btn-petit btn-del-etiq p-0 flex-shrink-0" data-tag="${t}">✕</button></div>`;
                     });
                 }
             },
@@ -1163,7 +1232,7 @@
                 const c = document.getElementById('reemplac-rules-container');
                 const div = document.createElement('div');
                 div.className = 'd-flex gap-2 mb-2 align-center';
-                div.innerHTML = `<input type="text" class="reemplac-find flex-1" placeholder="Cerca..."><span class="text-sm color-secundari">→</span><input type="text" class="reemplac-replace flex-1" placeholder="Substitut..."><button class="btn-perill">✕</button>`;
+                div.innerHTML = `<input type="text" class="reemplac-find flex-1 min-w-0" placeholder="Cerca..."><span class="text-sm color-secundari flex-shrink-0">→</span><input type="text" class="reemplac-replace flex-1 min-w-0" placeholder="Substitut..."><button class="btn-perill flex-shrink-0">✕</button>`;
                 c.appendChild(div);
             },
             runReplace: () => {
@@ -1376,17 +1445,14 @@
                 const guardat = AppState.calcMultiple[id] || 0;
                 if (Math.abs(provisional - guardat) > 0.000001 || (isNaN(provisional) !== isNaN(guardat))) {
                     label.textContent = "⚠️ No actualitzat, prem =";
-                    label.style.color = "var(--warning-text)";
-                    label.style.fontWeight = "600";
+                    label.style.display = "block";
                 } else {
-                    label.textContent = "Resultat:";
-                    label.style.color = "var(--text-secundari)";
-                    label.style.fontWeight = "normal";
+                    label.textContent = "";
+                    label.style.display = "none";
                 }
             } catch (e) {
                 label.textContent = "⚠️ No actualitzat, prem =";
-                label.style.color = "var(--warning-text)";
-                label.style.fontWeight = "600";
+                label.style.display = "block";
             }
         };
 
@@ -1402,17 +1468,15 @@
                 display.innerText = Utils.formatNum(res);
                 display.classList.remove('error-text-calc');
                 if (label) {
-                    label.textContent = "Resultat:";
-                    label.style.color = "var(--text-secundari)";
-                    label.style.fontWeight = "normal";
+                    label.textContent = "";
+                    label.style.display = "none";
                 }
             } catch(e) {
                 display.innerText = "Error";
                 display.classList.add('error-text-calc');
                 if (label) {
-                    label.textContent = "Resultat:";
-                    label.style.color = "var(--text-secundari)";
-                    label.style.fontWeight = "normal";
+                    label.textContent = "";
+                    label.style.display = "none";
                 }
             }
         };
