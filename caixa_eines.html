@@ -778,7 +778,9 @@
             document.getElementById('selector-decimals').value = localStorage.getItem('eines_decimals') || '2';
             document.getElementById('selector-separador').value = localStorage.getItem('eines_separador') || 'coma';
 			document.getElementById('selector-zoom').value = localStorage.getItem('eines_zoom') || '1.4';
-            UI.applyTheme();
+            
+			UI.applyTheme();
+			UI.applyZoom();
 
             document.getElementById('selector-eines').addEventListener('change', UI.changeTool);
             document.getElementById('selector-tema').addEventListener('change', UI.applyTheme);
