@@ -710,14 +710,14 @@
                     </select>
                 </label>
             </div>
-            <div>David Vidal Viladoms (+Gemini) — Nuad Gestión — Versió 1.2.4</div>
+            <div>David Vidal Viladoms (+Gemini) — Nuad Gestión — Versió 1.2.5</div>
         </footer>
     </div>
 
     <script src="enllacos.js"></script>
     <script>
         const AppState = {
-            calcMultiple: {}, calcCounter: 1,
+            calcMultiple: {}, calcHistory: {}, calcCounter: 1,
             cercadorCSV: [], reemplacCSV: [], dniResults: [],
             agrupEtiquetes: [], compA: [], compB: [], compBoth: [], compTab: 'A', recCSV: []
         };
@@ -885,10 +885,13 @@
                 div.id = id;
                 div.innerHTML = `
                     <div class="d-flex justify-between align-center">
-                        <div class="editable-label" contenteditable="true">Càlcul ${AppState.calcCounter - 1}</div>
-                        <button class="btn-perill btn-del-calc" title="Eliminar fila">✕</button>
+                        <div class="editable-label" contenteditable="true">Nou càlcul</div>
+                        <div class="d-flex gap-1 flex-shrink-0">
+                            <button id="btn-hist-${id}" class="btn-secundari btn-petit p-1" title="Mostra/Amaga l'històric" onclick="window.toggleCalcHistory('${id}')">⏱️</button>
+                            <button class="btn-perill btn-del-calc btn-petit p-1" title="Eliminar fila">✕</button>
+                        </div>
                     </div>
-                    <div class="d-flex gap-2 w-100 relative">
+                    <div class="d-flex gap-2 w-100 relative mt-1">
                         <input type="text" class="input-calcul font-mono flex-1 min-w-0" placeholder="Ex: 150.50 + 25" 
                                oninput="window.checkCalcChanges('${id}')" 
                                onkeydown="if(event.key==='Enter') window.evalCalcRow('${id}')">
@@ -899,8 +902,15 @@
                         <button class="btn-secundari btn-petit p-1 flex-shrink-0" onclick="window.copyCalc('${id}')" title="Copia el resultat">Copia</button>
                     </div>
                     <div class="label-calc-row text-sm mt-1" style="color: var(--warning-text); font-weight: 600; display: none;"></div>
+                    
+                    <div id="hist-panel-${id}" class="hidden mt-2 border-box bg-targeta p-2" style="box-shadow: inset 0 2px 4px var(--ombra); max-height: 150px; overflow-y: auto;">
+                    </div>
                 `;
-                div.querySelector('.btn-del-calc').addEventListener('click', () => { div.remove(); delete AppState.calcMultiple[id]; });
+                div.querySelector('.btn-del-calc').addEventListener('click', () => { 
+                    div.remove(); 
+                    delete AppState.calcMultiple[id]; 
+                    delete AppState.calcHistory[id]; 
+                });
                 document.getElementById('llista-calculs').appendChild(div);
             },
             
@@ -1494,6 +1504,18 @@
             try {
                 const res = Utils.safeMathEval(input.value);
                 AppState.calcMultiple[id] = res;
+                
+                if (!AppState.calcHistory[id]) AppState.calcHistory[id] = [];
+                const lastHist = AppState.calcHistory[id][AppState.calcHistory[id].length - 1];
+                if (!lastHist || lastHist.expr !== input.value) { 
+                    AppState.calcHistory[id].push({ expr: input.value, res: res });
+                    
+                    const panel = document.getElementById(`hist-panel-${id}`);
+                    if (panel && !panel.classList.contains('hidden')) {
+                        window.renderHistoryPanel(id);
+                    }
+                }
+
                 display.innerText = Utils.formatNum(res);
                 display.classList.remove('error-text-calc');
                 if (label) {
@@ -1515,6 +1537,36 @@
             if (row) {
                 const text = row.querySelector('.resultat-numero').innerText;
                 navigator.clipboard.writeText(text).catch(()=>{});
+            }
+        };
+
+        window.toggleCalcHistory = (id) => {
+            const panel = document.getElementById(`hist-panel-${id}`);
+            const btn = document.getElementById(`btn-hist-${id}`);
+            if (panel.classList.contains('hidden')) {
+                window.renderHistoryPanel(id);
+                panel.classList.remove('hidden');
+                if (btn) btn.classList.add('actiu');
+            } else {
+                panel.classList.add('hidden');
+                if (btn) btn.classList.remove('actiu');
+            }
+        };
+
+        window.renderHistoryPanel = (id) => {
+            const hist = AppState.calcHistory[id] || [];
+            const panel = document.getElementById(`hist-panel-${id}`);
+            
+            if (hist.length === 0) {
+                panel.innerHTML = '<p class="text-center color-secundari text-sm font-italic m-0 p-2">Encara no hi ha cap operació processada.</p>';
+            } else {
+                panel.innerHTML = `<table class="taula-dist text-left w-100" style="font-size: 11px;">
+                            <tbody>` + 
+                       hist.map(h => `<tr>
+                                        <td class="font-mono" style="white-space: pre-wrap; word-break: break-all; padding: 4px 0; border-bottom: 1px dashed var(--vora);">${Utils.sanitizeHTML(h.expr)}</td>
+                                        <td class="text-right font-bold color-accent" style="padding: 4px 0; border-bottom: 1px dashed var(--vora);">${Utils.formatNum(h.res)}</td>
+                                      </tr>`).join('') + 
+                       `</tbody></table>`;
             }
         };
     </script>
