@@ -365,7 +365,6 @@
                 <option value="tab-reemplacador">Reemplaçador de Caràcters</option>
                 <option value="tab-validador">Validador de DNI</option>
                 <option value="tab-comparador">Llistador i Comparador de Carpetes</option>
-                <option value="tab-recurrencia">Identificador de Recurrència</option>
             </select>
         </header>
 
@@ -420,8 +419,8 @@
 
             <div id="tab-cercador" class="eina-content">
                 <div class="input-grup">
-                    <label for="target-input">Import/s Objectiu (1 per línia):</label>
-                    <textarea id="target-input" class="font-mono h-sm" placeholder="Ex:&#10;150,50&#10;320,00"></textarea>
+                    <label for="target-input">Import Objectiu:</label>
+                    <input type="text" id="target-input" class="font-mono" placeholder="Ex: 150,50">
                 </div>
 
                 <div class="input-grup mt-2">
@@ -623,36 +622,6 @@
                     </div>
                 </div>
             </div>
-
-            <div id="tab-recurrencia" class="eina-content">
-                <div class="mb-3">
-                    <div class="graella-3">
-                        <div class="input-grup"><label for="rec-dates">Data:</label><textarea id="rec-dates" class="font-mono text-sm h-lg" placeholder="Ex: 01/01/2026"></textarea></div>
-                        <div class="input-grup"><label for="rec-conceptes">Concepte:</label><textarea id="rec-conceptes" class="font-mono text-sm h-lg" placeholder="Ex: Nòmina"></textarea></div>
-                        <div class="input-grup"><label for="rec-imports">Imports:</label><textarea id="rec-imports" class="font-mono text-sm h-lg" placeholder="Ex: 1500,00"></textarea></div>
-                    </div>
-                </div>
-                <button id="btn-run-rec" class="btn-ample">Cerca Recurrències</button>
-                <div id="res-recurrencia" class="resultat-box hidden p-0">
-                    <div class="d-flex justify-between align-center p-2 border-bottom bg-finestra flex-wrap gap-1">
-                        <span class="text-md font-bold">Resultats d'Anàlisi</span>
-                        <button id="btn-csv-rec" class="btn-secundari btn-petit flex-shrink-0">Baixa .csv</button>
-                    </div>
-                    <div class="scroll-y" style="max-height: 250px;">
-                        <table class="taula-dist text-left w-100">
-                            <thead class="bg-finestra sticky-top border-bottom">
-                                <tr>
-                                    <th class="text-left">Concepte</th>
-                                    <th class="text-center">Freqüència</th>
-                                    <th class="text-center">Propera Recurrència</th>
-                                    <th class="text-right">Import aprox.</th>
-                                </tr>
-                            </thead>
-                            <tbody id="rec-tbody"></tbody>
-                        </table>
-                    </div>
-                </div>
-            </div>
         </main>
 
         <footer>
@@ -719,7 +688,7 @@
         const AppState = {
             calcMultiple: {}, calcHistory: {}, calcCounter: 1,
             cercadorCSV: [], reemplacCSV: [], dniResults: [],
-            agrupEtiquetes: [], compA: [], compB: [], compBoth: [], compTab: 'A', recCSV: []
+            agrupEtiquetes: [], compA: [], compB: [], compBoth: [], compTab: 'A'
         };
 
         const Utils = {
@@ -819,8 +788,6 @@
             document.getElementById('btn-copy-comp').addEventListener('click', () => navigator.clipboard.writeText(Tools.getCompData().join('\n')));
             document.getElementById('btn-txt-comp').addEventListener('click', () => Tools.exportCompTxt());
             document.getElementById('btn-csv-comp').addEventListener('click', () => Tools.exportCompCSV());
-            document.getElementById('btn-run-rec').addEventListener('click', Tools.runRecurrencies);
-            document.getElementById('btn-csv-rec').addEventListener('click', () => Tools.exportCSV(AppState.recCSV, 'recurrencia'));
 
             document.getElementById('widget-app').addEventListener('click', (e) => {
                 if (e.target.classList.contains('btn-perill')) e.target.parentElement.remove();
@@ -1001,15 +968,10 @@
                 outDiv.classList.remove('hidden');
                 outDiv.innerHTML = '<p class="text-center font-italic color-secundari p-3 m-0">Iniciant cerca...</p>';
 
-                const rawTargets = document.getElementById('target-input').value.split('\n');
-                let targetVals = [];
-                rawTargets.forEach(line => {
-                    let v = Utils.cleanNum(line);
-                    if (v !== null && v !== 0) targetVals.push(v);
-                });
+                const targetVal = Utils.cleanNum(document.getElementById('target-input').value);
 
-                if (targetVals.length === 0) {
-                    outDiv.innerHTML = '<div class="error-box m-3">Cal indicar com a mínim un import objectiu vàlid.</div>';
+                if (targetVal === null || targetVal === 0) {
+                    outDiv.innerHTML = '<div class="error-box m-3">Cal indicar un import objectiu vàlid.</div>';
                     return;
                 }
 
@@ -1044,114 +1006,107 @@
                     minRem[i] = minRem[i + 1] + (v < 0 ? v : 0);
                 }
 
+                let solucionsIndexos = [], millorsAproximacions = [], iteracions = 0;
+
+                async function backtrack(startIndex, currSum, pathIdx) {
+                    if (solucionsIndexos.length >= 100) return;
+                    iteracions++;
+                    if (iteracions % 5000 === 0) await new Promise(r => setTimeout(r, 0));
+
+                    if (currSum === targetVal) {
+                        let solSet = new Set(pathIdx);
+                        if (!solucionsIndexos.some(s => s.size === solSet.size && [...s].every(x => solSet.has(x)))) {
+                            solucionsIndexos.push(solSet);
+                        }
+                    } else if (pathIdx.length > 0) {
+                        let dif = Math.abs(currSum - targetVal);
+                        if (millorsAproximacions.length < 10 || dif < millorsAproximacions[millorsAproximacions.length - 1].dif) {
+                            let solSet = new Set(pathIdx);
+                            if (!millorsAproximacions.some(a => a.set.size === solSet.size && [...a.set].every(x => solSet.has(x)))) {
+                                millorsAproximacions.push({ dif: dif, sum: currSum, set: solSet });
+                                millorsAproximacions.sort((a, b) => a.dif - b.dif);
+                                if (millorsAproximacions.length > 10) millorsAproximacions.pop();
+                            }
+                        }
+                    }
+
+                    if (startIndex >= len || currSum + minRem[startIndex] > targetVal || currSum + maxRem[startIndex] < targetVal) return;
+
+                    for (let i = startIndex; i < len; i++) {
+                        pathIdx.push(poolItems[i].idx);
+                        await backtrack(i + 1, currSum + poolItems[i].val, pathIdx);
+                        pathIdx.pop();
+                    }
+                }
+
+                await backtrack(0, 0, []);
+
+                let esAproximacio = false, llistaAMostrar = solucionsIndexos, sumesAprox = [];
+                if (solucionsIndexos.length === 0) {
+                    esAproximacio = true;
+                    let vistes = []; llistaAMostrar = [];
+                    for (let item of millorsAproximacions) {
+                        let setArr = [...item.set].sort().join(',');
+                        if (!vistes.includes(setArr)) {
+                            vistes.push(setArr);
+                            llistaAMostrar.push(item.set);
+                            sumesAprox.push(item.sum);
+                        }
+                        if (llistaAMostrar.length === 10) break;
+                    }
+                }
+
+                AppState.cercadorCSV = [];
+                AppState.cercadorCSV.push([`Objectiu: ${Utils.formatNum(targetVal/100)}`]);
+
                 let globalHtml = `<div class="d-flex justify-between align-center p-2 border-bottom bg-finestra flex-wrap gap-1">
                     <span class="text-md font-bold">Resultats Cercador</span>
                     <button class="btn-secundari btn-petit flex-shrink-0" onclick="Tools.exportCSV(AppState.cercadorCSV, 'cercador_combinacions')">Baixa .csv</button>
                 </div><div class="p-3">`;
 
-                AppState.cercadorCSV = [];
+                globalHtml += `<div class="d-flex justify-between align-center mb-2"><h4 class="m-0 text-lg">Objectiu: ${Utils.formatNum(targetVal/100)}</h4></div>`;
 
-                for (let tIdx = 0; tIdx < targetVals.length; tIdx++) {
-                    const targetVal = targetVals[tIdx];
-                    let solucionsIndexos = [], millorsAproximacions = [], iteracions = 0;
-
-                    async function backtrack(startIndex, currSum, pathIdx) {
-                        if (solucionsIndexos.length >= 100) return;
-                        iteracions++;
-                        if (iteracions % 5000 === 0) await new Promise(r => setTimeout(r, 0));
-
-                        if (currSum === targetVal) {
-                            let solSet = new Set(pathIdx);
-                            if (!solucionsIndexos.some(s => s.size === solSet.size && [...s].every(x => solSet.has(x)))) {
-                                solucionsIndexos.push(solSet);
-                            }
-                        } else if (pathIdx.length > 0) {
-                            let dif = Math.abs(currSum - targetVal);
-                            if (millorsAproximacions.length < 10 || dif < millorsAproximacions[millorsAproximacions.length - 1].dif) {
-                                let solSet = new Set(pathIdx);
-                                if (!millorsAproximacions.some(a => a.set.size === solSet.size && [...a.set].every(x => solSet.has(x)))) {
-                                    millorsAproximacions.push({ dif: dif, sum: currSum, set: solSet });
-                                    millorsAproximacions.sort((a, b) => a.dif - b.dif);
-                                    if (millorsAproximacions.length > 10) millorsAproximacions.pop();
-                                }
-                            }
-                        }
-
-                        if (startIndex >= len || currSum + minRem[startIndex] > targetVal || currSum + maxRem[startIndex] < targetVal) return;
-
-                        for (let i = startIndex; i < len; i++) {
-                            pathIdx.push(poolItems[i].idx);
-                            await backtrack(i + 1, currSum + poolItems[i].val, pathIdx);
-                            pathIdx.pop();
-                        }
-                    }
-
-                    await backtrack(0, 0, []);
-
-                    let esAproximacio = false, llistaAMostrar = solucionsIndexos, sumesAprox = [];
-                    if (solucionsIndexos.length === 0) {
-                        esAproximacio = true;
-                        let vistes = []; llistaAMostrar = [];
-                        for (let item of millorsAproximacions) {
-                            let setArr = [...item.set].sort().join(',');
-                            if (!vistes.includes(setArr)) {
-                                vistes.push(setArr);
-                                llistaAMostrar.push(item.set);
-                                sumesAprox.push(item.sum);
-                            }
-                            if (llistaAMostrar.length === 10) break;
-                        }
-                    }
-
-                    AppState.cercadorCSV.push([`Objectiu: ${Utils.formatNum(targetVal/100)}`]);
-                    let csvHeaders = ["Import Original", ...llistaAMostrar.map((_, i) => `Opció ${i + 1}`)];
-                    AppState.cercadorCSV.push(csvHeaders);
-
-                    globalHtml += `<div class="${tIdx > 0 ? 'mt-3 border-dashed pt-2' : ''}">`;
-                    globalHtml += `<div class="d-flex justify-between align-center mb-2"><h4 class="m-0 text-lg">Target: ${Utils.formatNum(targetVal/100)}</h4></div>`;
-
-                    if (llistaAMostrar.length === 0) {
-                        globalHtml += `<p class="text-sm color-secundari m-0">No s'ha trobat cap combinació.</p></div>`;
-                        AppState.cercadorCSV.push(["Sense combinacions trobades"]);
-                        AppState.cercadorCSV.push([""]);
-                        continue;
-                    }
-
-                    globalHtml += esAproximacio ? `<div class="error-box mb-2 p-1 text-sm">Les 10 millors aproximacions:</div>` : `<div class="mb-2 text-sm font-bold">✅ ${llistaAMostrar.length} opcions trobades</div>`;
-
-                    globalHtml += `<div class="scroll-x border-box bg-finestra"><table class="taula-dist text-sm"><thead><tr><th class="text-left">Import</th>${llistaAMostrar.map((_, i) => `<th>Opc. ${i + 1}</th>`).join('')}</tr></thead><tbody>`;
-
-                    valorsOriginals.forEach((val, idx) => {
-                        let usaAquest = llistaAMostrar.some(pSet => pSet.has(idx));
-                        if (!usaAquest) return;
-                        
-                        let csvRow = [Utils.formatNum(val / 100)];
-                        let rowCells = "";
-                        llistaAMostrar.forEach((pSet) => {
-                            if (pSet.has(idx)) {
-                                csvRow.push(Utils.formatNum(val / 100));
-                                rowCells += `<td class="font-bold bg-boto">${Utils.formatNum(val / 100)}</td>`;
-                            } else {
-                                csvRow.push("");
-                                rowCells += `<td style="opacity:0.2;">-</td>`;
-                            }
-                        });
-                        AppState.cercadorCSV.push(csvRow);
-                        globalHtml += `<tr><td class="text-left font-bold">${Utils.formatNum(val / 100)}</td>${rowCells}</tr>`;
-                    });
-
-                    globalHtml += `</tbody><tfoot><tr><td class="text-left">TOTAL</td>`;
-                    let csvTotals = ["TOTAL", ...llistaAMostrar.map((_, c) => Utils.formatNum((esAproximacio ? sumesAprox[c] : targetVal) / 100))];
-                    AppState.cercadorCSV.push(csvTotals);
-                    AppState.cercadorCSV.push([""]);
-
-                    llistaAMostrar.forEach((_, c) => {
-                        globalHtml += `<td>${Utils.formatNum((esAproximacio ? sumesAprox[c] : targetVal) / 100)}</td>`;
-                    });
-                    globalHtml += `</tr></tfoot></table></div></div>`;
+                if (llistaAMostrar.length === 0) {
+                    globalHtml += `<p class="text-sm color-secundari m-0">No s'ha trobat cap combinació.</p></div></div>`;
+                    AppState.cercadorCSV.push(["Sense combinacions trobades"]);
+                    outDiv.innerHTML = globalHtml;
+                    return;
                 }
 
-                globalHtml += `</div>`;
+                globalHtml += esAproximacio ? `<div class="error-box mb-2 p-1 text-sm">No s'ha trobat cap suma exacta. Les 10 millors aproximacions:</div>` : `<div class="mb-2 text-sm font-bold">✅ ${llistaAMostrar.length} opcions trobades</div>`;
+
+                let csvHeaders = ["Import", ...llistaAMostrar.map((_, i) => `Opció ${i + 1}`)];
+                AppState.cercadorCSV.push(csvHeaders);
+
+                globalHtml += `<div class="scroll-x border-box bg-finestra"><table class="taula-dist text-sm"><thead><tr><th class="text-left">Import</th>${llistaAMostrar.map((_, i) => `<th>Opc. ${i + 1}</th>`).join('')}</tr></thead><tbody>`;
+
+                valorsOriginals.forEach((val, idx) => {
+                    let csvRow = [Utils.formatNum(val / 100)];
+                    let rowCells = "";
+
+                    llistaAMostrar.forEach((pSet) => {
+                        if (pSet.has(idx)) {
+                            csvRow.push(Utils.formatNum(val / 100));
+                            rowCells += `<td class="font-bold bg-boto">${Utils.formatNum(val / 100)}</td>`;
+                        } else {
+                            csvRow.push("");
+                            rowCells += `<td style="opacity:0.25;">-</td>`;
+                        }
+                    });
+
+                    AppState.cercadorCSV.push(csvRow);
+                    globalHtml += `<tr><td class="text-left font-bold">${Utils.formatNum(val / 100)}</td>${rowCells}</tr>`;
+                });
+
+                globalHtml += `</tbody><tfoot><tr><td class="text-left">TOTAL</td>`;
+                let csvTotals = ["TOTAL", ...llistaAMostrar.map((_, c) => Utils.formatNum((esAproximacio ? sumesAprox[c] : targetVal) / 100))];
+                AppState.cercadorCSV.push(csvTotals);
+                AppState.cercadorCSV.push([""]);
+
+                llistaAMostrar.forEach((_, c) => {
+                    globalHtml += `<td>${Utils.formatNum((esAproximacio ? sumesAprox[c] : targetVal) / 100)}</td>`;
+                });
+                globalHtml += `</tr></tfoot></table></div></div></div>`;
                 outDiv.innerHTML = globalHtml;
             },
             
@@ -1403,74 +1358,7 @@
             getCompData: () => AppState.compTab === 'A' ? AppState.compA : (AppState.compTab === 'B' ? AppState.compB : AppState.compBoth),
             
             exportCompTxt: () => Utils.downloadStr(`comparacio_${AppState.compTab}_${new Date().toISOString().slice(0, 10)}.txt`, Tools.getCompData().join('\n')),
-            exportCompCSV: () => Utils.downloadStr(`comparacio_${AppState.compTab}_${new Date().toISOString().slice(0, 10)}.csv`, "\ufeffLlistat\n" + Tools.getCompData().map(i => `"${i.replace(/"/g, '""')}"`).join('\n')),
-
-            runRecurrencies: () => {
-                const dates = document.getElementById('rec-dates').value.split('\n');
-                const conceptes = document.getElementById('rec-conceptes').value.split('\n');
-                const imports = document.getElementById('rec-imports').value.split('\n');
-                const max = Math.max(dates.length, conceptes.length, imports.length);
-
-                let moviments = [];
-                for(let i = 0; i < max; i++) {
-                    let d = (dates[i]||'').trim(), c = (conceptes[i]||'').trim(), im = (imports[i]||'').trim();
-                    if (!d || !c || !im) continue;
-                    let p = d.split(/[\/\-]/);
-                    if(p.length === 3) {
-                        let dt = new Date(p[2], p[1] - 1, p[0]);
-                        let val = Utils.cleanNum(im);
-                        if(!isNaN(dt.getTime()) && val !== null) moviments.push({ data: dt, concepte: c, import: val });
-                    }
-                }
-
-                let groups = {};
-                moviments.forEach(m => {
-                    let k = m.concepte.toUpperCase();
-                    if(!groups[k]) groups[k] = [];
-                    groups[k].push(m);
-                });
-
-                let resultats = [];
-                for(let key in groups) {
-                    let items = groups[key].sort((a,b) => a.data - b.data);
-                    if(items.length < 2) continue;
-
-                    let minD = items[0].data, maxD = items[items.length-1].data;
-                    let monthsSpan = (maxD.getFullYear() - minD.getFullYear()) * 12 + (maxD.getMonth() - minD.getMonth()) + 1;
-                    let freq = "", prV = new Date(maxD);
-
-                    if (monthsSpan >= 2 && items.length / monthsSpan >= 0.70) {
-                        freq = "Mensual"; prV.setMonth(prV.getMonth() + 1);
-                    } else if (monthsSpan >= 3) {
-                        freq = "Trimestral"; prV.setMonth(prV.getMonth() + 3);
-                    }
-
-                    if (freq) {
-                        let avg = items.reduce((a,b)=>a+b.import, 0) / items.length;
-                        resultats.push({
-                            concepte: items[0].concepte,
-                            freq: freq,
-                            dataPrev: `${String(prV.getDate()).padStart(2,'0')}/${String(prV.getMonth()+1).padStart(2,'0')}/${prV.getFullYear()}`,
-                            import: Utils.formatNum(avg / 100)
-                        });
-                    }
-                }
-
-                AppState.recCSV = [["Concepte", "Freqüència", "Propera Recurrència", "Import aprox."]];
-                let html = "";
-                resultats.forEach(r => {
-                    html += `<tr>
-                        <td class="font-bold">${Utils.sanitizeHTML(r.concepte)}</td>
-                        <td class="text-center"><span class="border-box p-1 text-sm bg-targeta">${r.freq}</span></td>
-                        <td class="text-center color-accent font-bold">${r.dataPrev}</td>
-                        <td class="text-right">${r.import}</td>
-                    </tr>`;
-                    AppState.recCSV.push([r.concepte, r.freq, r.dataPrev, r.import]);
-                });
-
-                document.getElementById('rec-tbody').innerHTML = html || `<tr><td colspan="4" class="text-center p-3 color-secundari font-italic">No s'han detectat patrons suficients.</td></tr>`;
-                document.getElementById('res-recurrencia').classList.remove('hidden');
-            }
+            exportCompCSV: () => Utils.downloadStr(`comparacio_${AppState.compTab}_${new Date().toISOString().slice(0, 10)}.csv`, "\ufeffLlistat\n" + Tools.getCompData().map(i => `"${i.replace(/"/g, '""')}"`).join('\n'))
         };
 
         window.checkCalcChanges = (id) => {
