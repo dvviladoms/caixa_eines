@@ -422,9 +422,14 @@
                     <label for="target-input">Import Objectiu:</label>
                     <input type="text" id="target-input" class="font-mono" placeholder="Ex: 150,50">
                 </div>
+				
+				<div class="input-grup mt-2">
+                    <label for="tolerance-input">Marge de Tolerància (±):</label>
+                    <input type="text" id="tolerance-input" class="font-mono" placeholder="Ex: 0,01 (o buit per a cerca exacta)">
+                </div>
 
                 <div class="input-grup mt-2">
-                    <label for="invoices-input">Llista d'elements (màx. 200):</label>
+                    <label for="invoices-input">Llista d'Elements (màx. 200):</label>
                     <textarea id="invoices-input" class="font-mono h-lg" placeholder="Enganxa aquí els imports:&#10;145,65&#10;56,45..."></textarea>
                 </div>
 
@@ -975,6 +980,12 @@
                     return;
                 }
 
+                const tolInput = document.getElementById('tolerance-input');
+                const toleranceVal = Math.abs(tolInput && tolInput.value.trim() ? (Utils.cleanNum(tolInput.value) || 0) : 0);
+
+                const minTarget = targetVal - toleranceVal;
+                const maxTarget = targetVal + toleranceVal;
+
                 const rawInvoices = document.getElementById('invoices-input').value.split('\n');
                 let valorsOriginals = [], poolItems = [];
                 rawInvoices.forEach((line) => {
@@ -1006,31 +1017,21 @@
                     minRem[i] = minRem[i + 1] + (v < 0 ? v : 0);
                 }
 
-                let solucionsIndexos = [], millorsAproximacions = [], iteracions = 0;
+                let solucionsIndexos = [], iteracions = 0;
 
                 async function backtrack(startIndex, currSum, pathIdx) {
                     if (solucionsIndexos.length >= 100) return;
                     iteracions++;
                     if (iteracions % 5000 === 0) await new Promise(r => setTimeout(r, 0));
 
-                    if (currSum === targetVal) {
+                    if (pathIdx.length > 0 && currSum >= minTarget && currSum <= maxTarget) {
                         let solSet = new Set(pathIdx);
                         if (!solucionsIndexos.some(s => s.size === solSet.size && [...s].every(x => solSet.has(x)))) {
                             solucionsIndexos.push(solSet);
                         }
-                    } else if (pathIdx.length > 0) {
-                        let dif = Math.abs(currSum - targetVal);
-                        if (millorsAproximacions.length < 10 || dif < millorsAproximacions[millorsAproximacions.length - 1].dif) {
-                            let solSet = new Set(pathIdx);
-                            if (!millorsAproximacions.some(a => a.set.size === solSet.size && [...a.set].every(x => solSet.has(x)))) {
-                                millorsAproximacions.push({ dif: dif, sum: currSum, set: solSet });
-                                millorsAproximacions.sort((a, b) => a.dif - b.dif);
-                                if (millorsAproximacions.length > 10) millorsAproximacions.pop();
-                            }
-                        }
                     }
 
-                    if (startIndex >= len || currSum + minRem[startIndex] > targetVal || currSum + maxRem[startIndex] < targetVal) return;
+                    if (startIndex >= len || currSum + minRem[startIndex] > maxTarget || currSum + maxRem[startIndex] < minTarget) return;
 
                     for (let i = startIndex; i < len; i++) {
                         pathIdx.push(poolItems[i].idx);
@@ -1041,30 +1042,24 @@
 
                 await backtrack(0, 0, []);
 
-                let esAproximacio = false, llistaAMostrar = solucionsIndexos, sumesAprox = [];
-                if (solucionsIndexos.length === 0) {
-                    esAproximacio = true;
-                    let vistes = []; llistaAMostrar = [];
-                    for (let item of millorsAproximacions) {
-                        let setArr = [...item.set].sort().join(',');
-                        if (!vistes.includes(setArr)) {
-                            vistes.push(setArr);
-                            llistaAMostrar.push(item.set);
-                            sumesAprox.push(item.sum);
-                        }
-                        if (llistaAMostrar.length === 10) break;
-                    }
-                }
+                solucionsIndexos.sort((a, b) => {
+                    let sumA = [...a].reduce((acc, idx) => acc + valorsOriginals[idx], 0);
+                    let sumB = [...b].reduce((acc, idx) => acc + valorsOriginals[idx], 0);
+                    return Math.abs(sumA - targetVal) - Math.abs(sumB - targetVal);
+                });
+
+                let llistaAMostrar = solucionsIndexos;
+                const txtTolerancia = toleranceVal > 0 ? ` (±${Utils.formatNum(toleranceVal / 100)})` : '';
 
                 AppState.cercadorCSV = [];
-                AppState.cercadorCSV.push([`Objectiu: ${Utils.formatNum(targetVal/100)}`]);
+                AppState.cercadorCSV.push([`Objectiu: ${Utils.formatNum(targetVal / 100)}${txtTolerancia}`]);
 
                 let globalHtml = `<div class="d-flex justify-between align-center p-2 border-bottom bg-finestra flex-wrap gap-1">
                     <span class="text-md font-bold">Resultats Cercador</span>
                     <button class="btn-secundari btn-petit flex-shrink-0" onclick="Tools.exportCSV(AppState.cercadorCSV, 'cercador_combinacions')">Baixa .csv</button>
                 </div><div class="p-3">`;
 
-                globalHtml += `<div class="d-flex justify-between align-center mb-2"><h4 class="m-0 text-lg">Objectiu: ${Utils.formatNum(targetVal/100)}</h4></div>`;
+                globalHtml += `<div class="d-flex justify-between align-center mb-2"><h4 class="m-0 text-lg">Objectiu: ${Utils.formatNum(targetVal / 100)}${txtTolerancia}</h4></div>`;
 
                 if (llistaAMostrar.length === 0) {
                     globalHtml += `<p class="text-sm color-secundari m-0">No s'ha trobat cap combinació.</p></div></div>`;
@@ -1073,7 +1068,7 @@
                     return;
                 }
 
-                globalHtml += esAproximacio ? `<div class="error-box mb-2 p-1 text-sm">No s'ha trobat cap suma exacta. Les 10 millors aproximacions:</div>` : `<div class="mb-2 text-sm font-bold">✅ ${llistaAMostrar.length} opcions trobades</div>`;
+                globalHtml += `<div class="mb-2 text-sm font-bold">✅ ${llistaAMostrar.length} opcions trobades</div>`;
 
                 let csvHeaders = ["Import", ...llistaAMostrar.map((_, i) => `Opció ${i + 1}`)];
                 AppState.cercadorCSV.push(csvHeaders);
@@ -1098,13 +1093,15 @@
                     globalHtml += `<tr><td class="text-left font-bold">${Utils.formatNum(val / 100)}</td>${rowCells}</tr>`;
                 });
 
+                let sumesTotals = llistaAMostrar.map(pSet => [...pSet].reduce((acc, idx) => acc + valorsOriginals[idx], 0));
+
                 globalHtml += `</tbody><tfoot><tr><td class="text-left">TOTAL</td>`;
-                let csvTotals = ["TOTAL", ...llistaAMostrar.map((_, c) => Utils.formatNum((esAproximacio ? sumesAprox[c] : targetVal) / 100))];
+                let csvTotals = ["TOTAL", ...sumesTotals.map(s => Utils.formatNum(s / 100))];
                 AppState.cercadorCSV.push(csvTotals);
                 AppState.cercadorCSV.push([""]);
 
-                llistaAMostrar.forEach((_, c) => {
-                    globalHtml += `<td>${Utils.formatNum((esAproximacio ? sumesAprox[c] : targetVal) / 100)}</td>`;
+                sumesTotals.forEach((s) => {
+                    globalHtml += `<td>${Utils.formatNum(s / 100)}</td>`;
                 });
                 globalHtml += `</tr></tfoot></table></div></div></div>`;
                 outDiv.innerHTML = globalHtml;
