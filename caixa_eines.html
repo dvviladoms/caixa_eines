@@ -559,7 +559,7 @@
                                 <tr>
                                     <th class="text-left">Document</th>
                                     <th class="text-center">Tipus</th>
-                                    <th class="text-left">Estat</th>
+                                    <th class="text-left">Resultat</th>
                                 </tr>
                             </thead>
                             <tbody id="dni-tbody"></tbody>
@@ -594,9 +594,9 @@
                         <table class="taula-dist text-left w-100">
                             <thead class="bg-finestra sticky-top border-bottom">
                                 <tr>
-                                    <th class="text-left">Compte / IBAN</th>
-                                    <th class="text-center">País</th>
-                                    <th class="text-left">Estat / Detall</th>
+                                    <th style="width: 45px;"></th>
+                                    <th style="text-align: left;">Compte / IBAN</th>
+                                    <th style="text-align: left;">Resultat</th>
                                 </tr>
                             </thead>
                             <tbody id="iban-tbody"></tbody>
@@ -1435,21 +1435,18 @@
 
                     if (dcInf !== dcCalc) {
                         return {
-                            doc: raw, formatted: clean, country: "ES (CCC)", esValid: false,
-                            msgHtml: `Error DC CCC: consta <b>${dcInf}</b> i hauria de ser <b>${dcCalc}</b>`,
-                            msgTxt: `Error DC CCC: consta ${dcInf} i hauria de ser ${dcCalc}`
+                            doc: raw, formatted: clean, esValid: false,
+                            msgHtml: "IBAN incorrecte.", msgTxt: "IBAN incorrecte."
                         };
                     }
 
                     const mod = BigInt(clean + "142800") % 97n;
                     const cdIBAN = (98n - mod).toString().padStart(2, '0');
                     const fullIBAN = `ES${cdIBAN}${clean}`;
-                    const formatted = fullIBAN.match(/.{1,4}/g).join(' ');
 
                     return {
-                        doc: raw, formatted: formatted, ibanNet: fullIBAN, country: "ES", esValid: true,
-                        msgHtml: `Vàlid. IBAN generat: <b>${formatted}</b>`,
-                        msgTxt: `Vàlid (IBAN generat: ${formatted})`
+                        doc: raw, formatted: fullIBAN, esValid: true,
+                        msgHtml: "Correcte", msgTxt: "Correcte"
                     };
                 }
 
@@ -1459,9 +1456,8 @@
 
                     if (expLen && clean.length !== expLen) {
                         return {
-                            doc: raw, formatted: clean, country: country, esValid: false,
-                            msgHtml: `Longitud incorrecta (${clean.length} caràcters, esperats: ${expLen})`,
-                            msgTxt: `Longitud incorrecta (${clean.length} caràcters, esperats: ${expLen})`
+                            doc: raw, formatted: clean, esValid: false,
+                            msgHtml: "IBAN incorrecte.", msgTxt: "IBAN incorrecte."
                         };
                     }
 
@@ -1474,9 +1470,8 @@
 
                     if (BigInt(numericStr) % 97n !== 1n) {
                         return {
-                            doc: raw, formatted: clean, country: country, esValid: false,
-                            msgHtml: "Dígit de control IBAN invàlid",
-                            msgTxt: "Dígit de control IBAN invàlid"
+                            doc: raw, formatted: clean, esValid: false,
+                            msgHtml: "IBAN incorrecte.", msgTxt: "IBAN incorrecte."
                         };
                     }
 
@@ -1485,24 +1480,21 @@
                         const dcCalc = calcDcCCC(ccc.slice(0, 4), ccc.slice(4, 8), ccc.slice(10, 20));
                         if (ccc.slice(8, 10) !== dcCalc) {
                             return {
-                                doc: raw, formatted: clean.match(/.{1,4}/g).join(' '), country: country, esValid: false,
-                                msgHtml: `IBAN matemàticament correcte però amb error al DC intern (${ccc.slice(8, 10)} ≠ ${dcCalc})`,
-                                msgTxt: `Error DC intern del compte (${ccc.slice(8, 10)} != ${dcCalc})`
+                                doc: raw, formatted: clean, esValid: false,
+                                msgHtml: "IBAN incorrecte.", msgTxt: "IBAN incorrecte."
                             };
                         }
                     }
 
-                    const formatted = clean.match(/.{1,4}/g).join(' ');
                     return {
-                        doc: raw, formatted: formatted, ibanNet: clean, country: country, esValid: true,
+                        doc: raw, formatted: clean, esValid: true,
                         msgHtml: "Correcte", msgTxt: "Correcte"
                     };
                 }
 
                 return {
-                    doc: raw, formatted: clean || raw, country: "-", esValid: false,
-                    msgHtml: "Format no reconegut (requereix IBAN o 20 dígits CCC)",
-                    msgTxt: "Format no reconegut"
+                    doc: raw, formatted: clean || raw, esValid: false,
+                    msgHtml: "IBAN incorrecte.", msgTxt: "IBAN incorrecte."
                 };
             },
 
@@ -1525,8 +1517,10 @@
                 AppState.ibanResults.forEach(item => {
                     if (nomesErrors && item.esValid) return;
                     htmlRows += `<tr style="${item.esValid ? '' : 'background-color: var(--error-bg);'}">
+                        <td class="text-center" style="width: 45px; padding: 4px;">
+                            <button class="btn-secundari btn-petit p-1" onclick="navigator.clipboard.writeText('${item.formatted}')" title="Copia aquest IBAN">Copia</button>
+                        </td>
                         <td class="text-left font-bold font-mono">${Utils.sanitizeHTML(item.formatted)}</td>
-                        <td class="text-center"><span class="border-box p-1 text-sm bg-targeta">${item.country}</span></td>
                         <td class="text-left text-sm" style="color: var(${item.esValid ? '--succes-text' : '--error-text'});">${item.msgHtml}</td>
                     </tr>`;
                 });
@@ -1542,13 +1536,13 @@
 
             exportIBANTxt: () => {
                 const items = AppState.ibanResults.filter(i => !document.getElementById('filter-errors-iban').checked || !i.esValid);
-                const txt = items.map(i => `${i.formatted} \t [${i.country}] \t ${i.msgTxt}`).join('\n');
+                const txt = items.map(i => `${i.formatted} \t ${i.msgTxt}`).join('\n');
                 Utils.downloadStr(`validacio_iban_${new Date().toISOString().slice(0, 10)}.txt`, txt);
             },
 
             exportIBANCSV: () => {
                 const items = AppState.ibanResults.filter(i => !document.getElementById('filter-errors-iban').checked || !i.esValid);
-                const csv = "\ufeffCompte_IBAN;Pais;Estat\n" + items.map(i => `"${i.formatted}";"${i.country}";"${i.msgTxt}"`).join('\n');
+                const csv = "\ufeffCompte_IBAN;Estat\n" + items.map(i => `"${i.formatted}";"${i.msgTxt}"`).join('\n');
                 Utils.downloadStr(`validacio_iban_${new Date().toISOString().slice(0, 10)}.csv`, csv);
             }
         };
