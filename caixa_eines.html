@@ -605,7 +605,6 @@
                             </label>
                         </div>
                         <div class="d-flex gap-1 flex-shrink-0">
-                            <button id="btn-txt-dni" class="btn-secundari btn-petit">Baixa .txt</button>
                             <button id="btn-csv-dni" class="btn-secundari btn-petit">Baixa .csv</button>
                         </div>
                     </div>
@@ -642,7 +641,6 @@
                             </label>
                         </div>
                         <div class="d-flex gap-1 flex-shrink-0">
-                            <button id="btn-txt-iban" class="btn-secundari btn-petit">Baixa .txt</button>
                             <button id="btn-csv-iban" class="btn-secundari btn-petit">Baixa .csv</button>
                         </div>
                     </div>
@@ -884,7 +882,6 @@
             
             document.getElementById('btn-run-dni').addEventListener('click', Tools.runDNI);
             document.getElementById('filter-errors-dni').addEventListener('change', Tools.renderDNI);
-            document.getElementById('btn-txt-dni').addEventListener('click', () => Tools.exportDNITxt());
             document.getElementById('btn-csv-dni').addEventListener('click', () => Tools.exportDNICSV());
             document.getElementById('comp-dir-input').addEventListener('change', Tools.readFolder);
             document.getElementById('llistador-chk-ruta').addEventListener('change', Tools.readFolder);
@@ -899,7 +896,6 @@
             document.getElementById('btn-csv-comp').addEventListener('click', () => Tools.exportCompCSV());
             document.getElementById('btn-run-iban').addEventListener('click', Tools.runIBAN);
             document.getElementById('filter-errors-iban').addEventListener('change', Tools.renderIBAN);
-            document.getElementById('btn-txt-iban').addEventListener('click', Tools.exportIBANTxt);
             document.getElementById('btn-csv-iban').addEventListener('click', Tools.exportIBANCSV);
 
             document.getElementById('widget-app').addEventListener('click', (e) => {
@@ -1494,11 +1490,6 @@
                 tbody.innerHTML = htmlRows || `<tr><td colspan="4" class="text-center p-3 color-secundari font-italic">Cap resultat a mostrar.</td></tr>`;
             },
 
-            exportDNITxt: () => {
-                let txt = AppState.dniResults.filter(i => !document.getElementById('filter-errors-dni').checked || !i.esValid).map(i => `${i.doc} \t [${i.tipus}] \t ${i.msgTxt}`).join('\n');
-                Utils.downloadStr(`validacio_dni_${new Date().toISOString().slice(0, 10)}.txt`, txt);
-            },
-
             exportDNICSV: () => {
                 let csv = "\ufeffDocument;Tipus;Estat\n" + AppState.dniResults.filter(i => !document.getElementById('filter-errors-dni').checked || !i.esValid).map(i => `"${i.doc}";"${i.tipus}";"${i.msgTxt}"`).join('\n');
                 Utils.downloadStr(`validacio_dni_${new Date().toISOString().slice(0, 10)}.csv`, csv);
@@ -1742,12 +1733,6 @@
                 const items = AppState.ibanResults.filter(i => !document.getElementById('filter-errors-iban').checked || !i.esValid);
                 const txt = items.map(i => i.formatted).join('\n');
                 navigator.clipboard.writeText(txt);
-            },
-
-            exportIBANTxt: () => {
-                const items = AppState.ibanResults.filter(i => !document.getElementById('filter-errors-iban').checked || !i.esValid);
-                const txt = items.map(i => `${i.formatted} \t ${i.nomTxt} \t ${i.bicTxt} \t ${i.msgTxt}`).join('\n');
-                Utils.downloadStr(`validacio_iban_${new Date().toISOString().slice(0, 10)}.txt`, txt);
             },
 
             exportIBANCSV: () => {
