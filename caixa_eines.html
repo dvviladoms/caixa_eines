@@ -359,10 +359,10 @@
             <select id="selector-eines" aria-label="Selecciona l'eina">
                 <option value="tab-enllacos">Enllaços i Eines</option>
                 <option value="tab-calculadora-multiple">Calculadora Simple</option>
+                <option value="tab-formatador">Formatador de Text</option>
                 <option value="tab-calc-factures">Calculadora de Factures</option>
                 <option value="tab-cercador">Cercador de Combinacions</option>
                 <option value="tab-agrup-imports">Agrupador d'Imports</option>
-                <option value="tab-reemplacador">Reemplaçador de Caràcters</option>
                 <option value="tab-validador-dni">Validador de DNI</option>
                 <option value="tab-validador-iban">Validador d'IBAN</option>
                 <option value="tab-comparador">Llistador i Comparador de Carpetes</option>
@@ -379,6 +379,92 @@
             <div id="tab-calculadora-multiple" class="eina-content">
                 <div id="llista-calculs"></div>
                 <button id="btn-afegir-calculadora" class="btn-secundari w-100 mt-1">+ Afegeix nou càlcul</button>
+            </div>
+
+            <div id="tab-formatador" class="eina-content">
+                <div class="input-grup">
+                    <label for="format-input">Text Original:</label>
+                    <textarea id="format-input" class="font-mono h-lg" placeholder="Escriu aquí el text..."></textarea>
+                </div>
+
+                <div class="mt-3 border-top pt-3">
+                    <div class="d-flex justify-between align-center mb-2 cursor-pointer" onclick="window.toggleCollapsible('fmt-neteja-box', this)">
+                        <h3 class="text-md font-bold m-0">Neteja de Text</h3>
+                        <span class="text-sm color-secundari indicador-toggle">▼ Mostra / Amaga</span>
+                    </div>
+                    <div id="fmt-neteja-box" class="hidden mb-3">
+                        <div class="d-flex flex-col gap-1">
+                            <label class="text-sm d-flex align-center gap-1 cursor-pointer m-0">
+                                <input type="checkbox" id="fmt-chk-buides" class="m-0 w-auto"> Elimina línies buides
+                            </label>
+                            <label class="text-sm d-flex align-center gap-1 cursor-pointer m-0">
+                                <input type="checkbox" id="fmt-chk-duplicats" class="m-0 w-auto"> Elimina línies duplicades
+                            </label>
+                            <label class="text-sm d-flex align-center gap-1 cursor-pointer m-0">
+                                <input type="checkbox" id="fmt-chk-espais" class="m-0 w-auto"> Elimina espais en blanc sobrants
+                            </label>
+                        </div>
+                    </div>
+
+                    <div class="d-flex justify-between align-center border-top pt-3 mb-2 cursor-pointer" onclick="window.toggleCollapsible('fmt-repl-box', this)">
+                        <h3 class="text-md font-bold m-0">Prefixos, Sufixos i Substitucions</h3>
+                        <span class="text-sm color-secundari indicador-toggle">▼ Mostra / Amaga</span>
+                    </div>
+                    <div id="fmt-repl-box" class="hidden mb-3">
+                        <div class="mb-3">
+                            <label class="text-sm font-bold color-secundari mb-1 d-block">Prefixos i Sufixos:</label>
+                            <div id="fmt-prefix-sufix-container"></div>
+                            <button id="btn-add-prefsuf" class="btn-secundari w-100 mt-1">+ Afegeix Prefix/Sufix</button>
+                        </div>
+                        <div>
+                            <label class="text-sm font-bold color-secundari mb-1 d-block">Substitucions de Text:</label>
+                            <div id="reemplac-rules-container"></div>
+                            <button id="btn-add-regla" class="btn-secundari w-100 mt-1">+ Afegeix Regla</button>
+                        </div>
+                    </div>
+
+                    <div class="d-flex justify-between align-center border-top pt-3 mb-2 cursor-pointer" onclick="window.toggleCollapsible('fmt-format-box', this)">
+                        <h3 class="text-md font-bold m-0">Capitalització i Ordenació</h3>
+                        <span class="text-sm color-secundari indicador-toggle">▼ Mostra / Amaga</span>
+                    </div>
+                    <div id="fmt-format-box" class="hidden mb-3">
+                        <div class="mb-3">
+                            <label class="text-sm font-bold color-secundari mb-1 d-block">Tipus de lletra:</label>
+                            <div class="graella-2" style="gap: 6px;">
+                                <button class="btn-secundari p-1 text-sm btn-fmt-case actiu" data-case="none">Original</button>
+                                <button class="btn-secundari p-1 text-sm btn-fmt-case" data-case="title">Primera Majúscula</button>
+                                <button class="btn-secundari p-1 text-sm btn-fmt-case" data-case="upper">MAJÚSCULES</button>
+                                <button class="btn-secundari p-1 text-sm btn-fmt-case" data-case="lower">minúscules</button>
+                            </div>
+                        </div>
+                        <div>
+                            <label class="text-sm font-bold color-secundari mb-1 d-block">Ordre Alfabètic:</label>
+                            <div class="d-flex gap-2">
+                                <button class="btn-secundari flex-1 p-1 text-sm btn-fmt-sort actiu" data-sort="none" id="btn-sort-none">Original</button>
+                                <button class="btn-secundari flex-1 p-1 text-sm btn-fmt-sort" data-sort="asc" id="btn-sort-asc">A → Z</button>
+                                <button class="btn-secundari flex-1 p-1 text-sm btn-fmt-sort" data-sort="desc" id="btn-sort-desc">Z → A</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <button id="btn-run-format" class="btn-ample mt-2">Processa el Text</button>
+
+                <div id="res-formatador" class="resultat-box hidden p-0">
+                    <div class="d-flex justify-between align-center p-2 border-bottom bg-finestra flex-wrap gap-1">
+                        <span class="text-md font-bold" id="fmt-res-title">Resultat</span>
+                        <div class="d-flex gap-1 flex-shrink-0">
+                            <button id="btn-copy-format" class="btn-secundari btn-petit">Copia</button>
+                            <button id="btn-txt-format" class="btn-secundari btn-petit">Baixa .txt</button>
+                            <button id="btn-csv-format" class="btn-secundari btn-petit">Baixa .csv</button>
+                        </div>
+                    </div>
+                    <div class="p-2 scroll-y" style="max-height: 250px;">
+                        <table class="taula-dist text-left w-100">
+                            <tbody id="format-tbody"></tbody>
+                        </table>
+                    </div>
+                </div>
             </div>
 
             <div id="tab-calc-factures" class="eina-content">
@@ -431,7 +517,7 @@
 
                 <div class="input-grup mt-2">
                     <label for="invoices-input">Llista d'Elements (màx. 200):</label>
-                    <textarea id="invoices-input" class="font-mono h-lg" placeholder="Enganxa aquí els imports:&#10;145,65&#10;56,45..."></textarea>
+                    <textarea id="invoices-input" class="font-mono h-lg" placeholder="Escriu aquí els imports:&#10;145,65&#10;56,45..."></textarea>
                 </div>
 
                 <button id="btn-run-cercador" class="btn-ample">Cerca Combinacions</button>
@@ -502,40 +588,10 @@
                 </div>
             </div>
 
-            <div id="tab-reemplacador" class="eina-content">
-                <div class="input-grup">
-                    <label for="reemplac-input">Text original:</label>
-                    <textarea id="reemplac-input" class="font-mono h-lg" placeholder="Enganxa aquí el text..."></textarea>
-                </div>
-
-                <div class="mt-3 border-top pt-3">
-                    <label class="text-sm font-bold color-secundari mb-2">Regles de reemplaçament:</label>
-                    <div id="reemplac-rules-container"></div>
-                    <button id="btn-add-regla" class="btn-secundari w-100 mt-1">+ Afegeix Regla</button>
-                </div>
-
-                <button id="btn-run-reemplac" class="btn-ample">Reemplaça i Mostra</button>
-
-                <div id="res-reemplac" class="resultat-box hidden p-0">
-                    <div class="d-flex justify-between align-center p-2 border-bottom bg-finestra flex-wrap gap-1">
-                        <span class="text-md font-bold">Text Modificat</span>
-                        <div class="d-flex gap-1 flex-shrink-0">
-                            <button id="btn-copy-reemplac" class="btn-secundari btn-petit">Copia</button>
-                            <button id="btn-csv-reemplac" class="btn-secundari btn-petit">Baixa .csv</button>
-                        </div>
-                    </div>
-                    <div class="p-2 scroll-y" style="max-height: 250px;">
-                        <table class="taula-dist text-left w-100">
-                            <tbody id="reemplac-tbody"></tbody>
-                        </table>
-                    </div>
-                </div>
-            </div>
-
             <div id="tab-validador-dni" class="eina-content">
                 <div class="input-grup">
                     <label for="dni-input">Llistat de documents (1 per línia o separats per comes):</label>
-                    <textarea id="dni-input" class="font-mono h-lg" placeholder="Enganxa aquí el llistat..."></textarea>
+                    <textarea id="dni-input" class="font-mono h-lg" placeholder="Escriu aquí el llistat..."></textarea>
                 </div>
 
                 <button id="btn-run-dni" class="btn-ample">Valida Llistat</button>
@@ -557,9 +613,10 @@
                         <table class="taula-dist text-left w-100">
                             <thead class="bg-finestra sticky-top border-bottom">
                                 <tr>
-                                    <th class="text-left">Document</th>
-                                    <th class="text-center">Tipus</th>
-                                    <th class="text-left">Resultat</th>
+                                    <th style="width: 45px;"></th>
+                                    <th style="text-align: left;">Document</th>
+                                    <th style="text-align: center;">Tipus</th>
+                                    <th style="text-align: left;">Resultat</th>
                                 </tr>
                             </thead>
                             <tbody id="dni-tbody"></tbody>
@@ -571,7 +628,7 @@
             <div id="tab-validador-iban" class="eina-content">
                 <div class="input-grup">
                     <label for="iban-input">Llistat de comptes o IBANs (1 per línia o separats per comes):</label>
-                    <textarea id="iban-input" class="font-mono h-lg" placeholder="Enganxa aquí el llistat:&#10;ES6000491500051234567892&#10;0049 1500 05 1234567892 (CCC de 20 dígits)&#10;FR76..."></textarea>
+                    <textarea id="iban-input" class="font-mono h-lg" placeholder="Escriu aquí el llistat..."></textarea>
                 </div>
 
                 <button id="btn-run-iban" class="btn-ample">Valida Llistat</button>
@@ -585,17 +642,18 @@
                             </label>
                         </div>
                         <div class="d-flex gap-1 flex-shrink-0">
-                            <button id="btn-copy-iban" class="btn-secundari btn-petit">Copia</button>
                             <button id="btn-txt-iban" class="btn-secundari btn-petit">Baixa .txt</button>
                             <button id="btn-csv-iban" class="btn-secundari btn-petit">Baixa .csv</button>
                         </div>
                     </div>
-                    <div class="scroll-y" style="max-height: 250px;">
+                    <div class="scroll-y scroll-x" style="max-height: 250px;">
                         <table class="taula-dist text-left w-100">
                             <thead class="bg-finestra sticky-top border-bottom">
                                 <tr>
                                     <th style="width: 45px;"></th>
                                     <th style="text-align: left;">Compte / IBAN</th>
+                                    <th style="text-align: left;">Entitat</th>
+                                    <th style="text-align: left;">BIC / SWIFT</th>
                                     <th style="text-align: left;">Resultat</th>
                                 </tr>
                             </thead>
@@ -722,16 +780,18 @@
                     </select>
                 </label>
             </div>
-            <div>David Vidal Viladoms (+Gemini) — Nuad Gestión — Versió 1.2.6</div>
+            <div>David Vidal Viladoms (+Gemini) — Nuad Gestión — Versió 1.2.7</div>
         </footer>
     </div>
 
     <script src="enllacos.js"></script>
+	<script src="bancs_bic.js"></script>
     <script>
         const AppState = {
             calcMultiple: {}, calcHistory: {}, calcCounter: 1,
-            cercadorCSV: [], reemplacCSV: [], dniResults: [], ibanResults: [],
-            agrupEtiquetes: [], compA: [], compB: [], compBoth: [], compTab: 'A'
+            cercadorCSV: [], formatCSV: [], dniResults: [], ibanResults: [],
+            agrupEtiquetes: [], compA: [], compB: [], compBoth: [], compTab: 'A',
+            fmtSort: 'none', fmtCase: 'none'
         };
 
         const Utils = {
@@ -812,10 +872,16 @@
             document.getElementById('btn-swap-agrupador').addEventListener('click', Tools.swapAgrupador);
             document.getElementById('btn-read-agrupador').addEventListener('click', Tools.readAgrupador);
             document.getElementById('btn-add-etiq').addEventListener('click', Tools.addTag);
+            
+            document.querySelectorAll('.btn-fmt-sort').forEach(b => b.addEventListener('click', (e) => Tools.setFmtSort(e.target.dataset.sort)));
+            document.querySelectorAll('.btn-fmt-case').forEach(b => b.addEventListener('click', (e) => Tools.setFmtCase(e.target.dataset.case)));
+            document.getElementById('btn-add-prefsuf').addEventListener('click', Tools.addPrefSufRule);
             document.getElementById('btn-add-regla').addEventListener('click', Tools.addReplaceRule);
-            document.getElementById('btn-run-reemplac').addEventListener('click', Tools.runReplace);
-            document.getElementById('btn-copy-reemplac').addEventListener('click', () => navigator.clipboard.writeText(AppState.reemplacCSV.map(r=>r[0]).join('\n')));
-            document.getElementById('btn-csv-reemplac').addEventListener('click', () => Tools.exportCSV(AppState.reemplacCSV, 'reemplacament'));
+            document.getElementById('btn-run-format').addEventListener('click', Tools.runFormatador);
+            document.getElementById('btn-copy-format').addEventListener('click', () => navigator.clipboard.writeText(AppState.formatCSV.map(r=>r[0]).join('\n')));
+            document.getElementById('btn-txt-format').addEventListener('click', () => Utils.downloadStr(`formatador_${new Date().toISOString().slice(0, 10)}.txt`, AppState.formatCSV.map(r=>r[0]).join('\n')));
+            document.getElementById('btn-csv-format').addEventListener('click', () => Tools.exportCSV(AppState.formatCSV, 'formatador'));
+            
             document.getElementById('btn-run-dni').addEventListener('click', Tools.runDNI);
             document.getElementById('filter-errors-dni').addEventListener('change', Tools.renderDNI);
             document.getElementById('btn-txt-dni').addEventListener('click', () => Tools.exportDNITxt());
@@ -833,7 +899,6 @@
             document.getElementById('btn-csv-comp').addEventListener('click', () => Tools.exportCompCSV());
             document.getElementById('btn-run-iban').addEventListener('click', Tools.runIBAN);
             document.getElementById('filter-errors-iban').addEventListener('change', Tools.renderIBAN);
-            document.getElementById('btn-copy-iban').addEventListener('click', Tools.copyIBAN);
             document.getElementById('btn-txt-iban').addEventListener('click', Tools.exportIBANTxt);
             document.getElementById('btn-csv-iban').addEventListener('click', Tools.exportIBANCSV);
 
@@ -844,6 +909,7 @@
 
             Tools.addCalcRow();
             Tools.addProjectRow(); Tools.addProjectRow();
+            Tools.addPrefSufRule();
             Tools.addReplaceRule();
             Tools.renderTags();
         });
@@ -1262,30 +1328,113 @@
                 document.getElementById('agrup-resum-total').textContent = Utils.formatNum(totalGeneral/100);
             },
 
+            addPrefSufRule: () => {
+                const c = document.getElementById('fmt-prefix-sufix-container');
+                const div = document.createElement('div');
+                div.className = 'd-flex gap-2 mb-2 align-center';
+                div.innerHTML = `<input type="text" class="fmt-prefix flex-1 min-w-0 font-mono text-sm" placeholder="Prefix..."><input type="text" class="fmt-sufix flex-1 min-w-0 font-mono text-sm" placeholder="Sufix..."><button class="btn-perill flex-shrink-0">✕</button>`;
+                c.appendChild(div);
+            },
+
             addReplaceRule: () => {
                 const c = document.getElementById('reemplac-rules-container');
                 const div = document.createElement('div');
                 div.className = 'd-flex gap-2 mb-2 align-center';
-                div.innerHTML = `<input type="text" class="reemplac-find flex-1 min-w-0" placeholder="Cerca..."><span class="text-sm color-secundari flex-shrink-0">→</span><input type="text" class="reemplac-replace flex-1 min-w-0" placeholder="Substitut..."><button class="btn-perill flex-shrink-0">✕</button>`;
+                div.innerHTML = `<input type="text" class="reemplac-find flex-1 min-w-0 font-mono text-sm" placeholder="Cerca..."><span class="text-sm color-secundari flex-shrink-0">→</span><input type="text" class="reemplac-replace flex-1 min-w-0 font-mono text-sm" placeholder="Substitut..."><button class="btn-perill flex-shrink-0">✕</button>`;
                 c.appendChild(div);
             },
-            runReplace: () => {
-                const src = document.getElementById('reemplac-input').value;
-                if (!src.trim()) return document.getElementById('res-reemplac').classList.add('hidden');
+            
+            runFormatador: () => {
+                const src = document.getElementById('format-input').value;
+                if (!src && src !== "") return document.getElementById('res-formatador').classList.add('hidden');
+                if (src.length === 0) return document.getElementById('res-formatador').classList.add('hidden');
                 
-                const finds = document.querySelectorAll('.reemplac-find'), repls = document.querySelectorAll('.reemplac-replace');
+                let rawLines = src.replace(/\r\n/g, '\n').replace(/\r/g, '\n').split('\n');
+                
+                const chkBuides = document.getElementById('fmt-chk-buides').checked;
+                const chkDuplicats = document.getElementById('fmt-chk-duplicats').checked;
+                const chkEspais = document.getElementById('fmt-chk-espais').checked;
+                
+                const finds = document.querySelectorAll('.reemplac-find');
+                const repls = document.querySelectorAll('.reemplac-replace');
                 let pairs = [];
-                for(let i=0; i<finds.length; i++) if(finds[i].value) pairs.push([finds[i].value, repls[i].value]);
+                for(let i=0; i<finds.length; i++) {
+                    if(finds[i].value) pairs.push([finds[i].value, repls[i].value || ""]);
+                }
+
+                const prefs = document.querySelectorAll('.fmt-prefix');
+                const sufs = document.querySelectorAll('.fmt-sufix');
+                let psPairs = [];
+                for(let i=0; i<prefs.length; i++) {
+                    let p = prefs[i].value || "";
+                    let s = sufs[i].value || "";
+                    if (p || s) psPairs.push([p, s]);
+                }
+
+                let processed = [];
                 
-                AppState.reemplacCSV = [];
+                for(let i=0; i<rawLines.length; i++) {
+                    let l = rawLines[i];
+                    
+                    pairs.forEach(p => l = l.split(p[0]).join(p[1]));
+                    
+                    if (AppState.fmtCase === 'upper') l = l.toUpperCase();
+                    else if (AppState.fmtCase === 'lower') l = l.toLowerCase();
+                    else if (AppState.fmtCase === 'title') {
+                        l = l.toLowerCase().replace(/(?:^|\s|-|\/|\(|\)|\[|\])\S/g, match => match.toUpperCase());
+                    }
+                    
+                    if (chkEspais) {
+                        l = l.trim().replace(/\s+/g, ' ');
+                    }
+                    
+                    if (chkBuides) {
+                        if (l.trim() === '') continue;
+                    }
+                    
+                    processed.push(l);
+                }
+                
+                if (chkDuplicats) {
+                    processed = [...new Set(processed)];
+                }
+                
+                if (psPairs.length > 0) {
+                    processed = processed.map(l => {
+                        let res = l;
+                        psPairs.forEach(p => res = p[0] + res + p[1]);
+                        return res;
+                    });
+                }
+                
+                if (AppState.fmtSort === 'asc') {
+                    processed.sort((a, b) => a.localeCompare(b, undefined, {numeric: true, sensitivity: 'base'}));
+                } else if (AppState.fmtSort === 'desc') {
+                    processed.sort((a, b) => b.localeCompare(a, undefined, {numeric: true, sensitivity: 'base'}));
+                }
+                
+                AppState.formatCSV = [];
                 let html = "";
-                src.split('\n').forEach(l => {
-                    let m = l; pairs.forEach(p => m = m.split(p[0]).join(p[1]));
-                    AppState.reemplacCSV.push([m]);
-                    html += `<tr><td class="font-mono text-sm border-dashed p-1" style="white-space: pre-wrap; word-break: break-all;">${Utils.sanitizeHTML(m)}</td></tr>`;
-                });
-                document.getElementById('reemplac-tbody').innerHTML = html;
-                document.getElementById('res-reemplac').classList.remove('hidden');
+                
+                for(let i=0; i<processed.length; i++) {
+                    let l = processed[i];
+                    AppState.formatCSV.push([l]);
+                    html += `<tr><td class="font-mono text-sm border-dashed p-1" style="white-space: pre-wrap; word-break: break-all;">${Utils.sanitizeHTML(l)}</td></tr>`;
+                }
+                
+                document.getElementById('fmt-res-title').innerText = `Resultat: ${processed.length} línies`;
+                document.getElementById('format-tbody').innerHTML = html || `<tr><td class="text-center p-2 color-secundari font-italic">Cap resultat.</td></tr>`;
+                document.getElementById('res-formatador').classList.remove('hidden');
+            },
+            
+            setFmtSort: (sort) => {
+                AppState.fmtSort = sort;
+                document.querySelectorAll('.btn-fmt-sort').forEach(b => b.classList.toggle('actiu', b.dataset.sort === sort));
+            },
+            
+            setFmtCase: (c) => {
+                AppState.fmtCase = c;
+                document.querySelectorAll('.btn-fmt-case').forEach(b => b.classList.toggle('actiu', b.dataset.case === c));
             },
 
             exportCSV: (dataArr, prefix) => {
@@ -1334,12 +1483,15 @@
                 AppState.dniResults.forEach(item => {
                     if (nomesErrors && item.esValid) return;
                     htmlRows += `<tr style="${item.esValid ? '' : 'background-color: var(--error-bg);'}">
+                        <td class="text-center" style="width: 45px; padding: 4px;">
+                            <button class="btn-secundari btn-petit p-1" onclick="navigator.clipboard.writeText('${item.doc}')" title="Copia aquest document">Copia</button>
+                        </td>
                         <td class="text-left font-bold font-mono">${Utils.sanitizeHTML(item.doc)}</td>
                         <td class="text-center"><span class="border-box p-1 text-sm bg-targeta">${item.tipus}</span></td>
                         <td class="text-left text-sm" style="color: var(${item.esValid ? '--succes-text' : '--error-text'});">${item.msgHtml}</td>
                     </tr>`;
                 });
-                tbody.innerHTML = htmlRows || `<tr><td colspan="3" class="text-center p-3 color-secundari font-italic">Cap resultat a mostrar.</td></tr>`;
+                tbody.innerHTML = htmlRows || `<tr><td colspan="4" class="text-center p-3 color-secundari font-italic">Cap resultat a mostrar.</td></tr>`;
             },
 
             exportDNITxt: () => {
@@ -1400,6 +1552,28 @@
             exportCompTxt: () => Utils.downloadStr(`comparacio_${AppState.compTab}_${new Date().toISOString().slice(0, 10)}.txt`, Tools.getCompData().join('\n')),
             exportCompCSV: () => Utils.downloadStr(`comparacio_${AppState.compTab}_${new Date().toISOString().slice(0, 10)}.csv`, "\ufeffLlistat\n" + Tools.getCompData().map(i => `"${i.replace(/"/g, '""')}"`).join('\n')),
 
+            detectarBancIBAN: (ibanNet) => {
+                if (!ibanNet || ibanNet.length < 5) return null;
+                if (typeof diccionariBancs === 'undefined') return null;
+
+                const pais = ibanNet.slice(0, 2);
+                let codiBanc = "";
+
+                if (pais === "ES" || pais === "AD" || pais === "NL" || pais === "IE") {
+                    codiBanc = ibanNet.slice(4, 8);
+                } else if (pais === "BE") {
+                    codiBanc = ibanNet.slice(4, 7);
+                } else if (pais === "FR" || pais === "LT") {
+                    codiBanc = ibanNet.slice(4, 9);
+                } else if (pais === "DE") {
+                    codiBanc = ibanNet.slice(4, 12);
+                } else {
+                    codiBanc = ibanNet.slice(4, 8);
+                }
+
+                return diccionariBancs[pais + codiBanc] || null;
+            },
+
             validarCompteIBAN: (itemRaw) => {
                 const raw = itemRaw.trim();
                 const clean = raw.toUpperCase().replace(/[\s\-\.]/g, '');
@@ -1428,6 +1602,31 @@
                     return dc1 + dc2;
                 };
 
+                const processarBanc = (ibanNet) => {
+                    const b = Tools.detectarBancIBAN(ibanNet);
+                    if (b) {
+                        return {
+                            nomHtml: `<b>${Utils.sanitizeHTML(b.nom)}</b>`,
+                            nomTxt: b.nom,
+                            bicHtml: `<span class="font-mono text-sm">${Utils.sanitizeHTML(b.bic)}</span>`,
+                            bicTxt: b.bic
+                        };
+                    }
+                    return {
+                        nomHtml: `<span class="color-secundari font-italic text-sm" title="Aquest banc no consta al fitxer bancs_bic.js">No catalogat a la base de dades</span>`,
+                        nomTxt: `No catalogat a la base de dades`,
+                        bicHtml: `<span style="opacity:0.25;">-</span>`,
+                        bicTxt: `-`
+                    };
+                };
+
+                const bancBuit = {
+                    nomHtml: `<span style="opacity:0.25;">-</span>`,
+                    nomTxt: `-`,
+                    bicHtml: `<span style="opacity:0.25;">-</span>`,
+                    bicTxt: `-`
+                };
+
                 if (/^[0-9]{20}$/.test(clean)) {
                     const ent = clean.slice(0, 4), ofi = clean.slice(4, 8);
                     const dcInf = clean.slice(8, 10), cta = clean.slice(10, 20);
@@ -1436,17 +1635,20 @@
                     if (dcInf !== dcCalc) {
                         return {
                             doc: raw, formatted: clean, esValid: false,
-                            msgHtml: "IBAN incorrecte.", msgTxt: "IBAN incorrecte."
+                            msgHtml: "IBAN incorrecte.", msgTxt: "IBAN incorrecte.",
+                            ...bancBuit
                         };
                     }
 
                     const mod = BigInt(clean + "142800") % 97n;
                     const cdIBAN = (98n - mod).toString().padStart(2, '0');
                     const fullIBAN = `ES${cdIBAN}${clean}`;
+                    const bInfo = processarBanc(fullIBAN);
 
                     return {
                         doc: raw, formatted: fullIBAN, esValid: true,
-                        msgHtml: "Correcte", msgTxt: "Correcte"
+                        msgHtml: "Correcte", msgTxt: "Correcte",
+                        ...bInfo
                     };
                 }
 
@@ -1457,7 +1659,8 @@
                     if (expLen && clean.length !== expLen) {
                         return {
                             doc: raw, formatted: clean, esValid: false,
-                            msgHtml: "IBAN incorrecte.", msgTxt: "IBAN incorrecte."
+                            msgHtml: "IBAN incorrecte.", msgTxt: "IBAN incorrecte.",
+                            ...bancBuit
                         };
                     }
 
@@ -1471,7 +1674,8 @@
                     if (BigInt(numericStr) % 97n !== 1n) {
                         return {
                             doc: raw, formatted: clean, esValid: false,
-                            msgHtml: "IBAN incorrecte.", msgTxt: "IBAN incorrecte."
+                            msgHtml: "IBAN incorrecte.", msgTxt: "IBAN incorrecte.",
+                            ...bancBuit
                         };
                     }
 
@@ -1481,20 +1685,24 @@
                         if (ccc.slice(8, 10) !== dcCalc) {
                             return {
                                 doc: raw, formatted: clean, esValid: false,
-                                msgHtml: "IBAN incorrecte.", msgTxt: "IBAN incorrecte."
+                                msgHtml: "IBAN incorrecte.", msgTxt: "IBAN incorrecte.",
+                                ...bancBuit
                             };
                         }
                     }
 
+                    const bInfo = processarBanc(clean);
                     return {
                         doc: raw, formatted: clean, esValid: true,
-                        msgHtml: "Correcte", msgTxt: "Correcte"
+                        msgHtml: "Correcte", msgTxt: "Correcte",
+                        ...bInfo
                     };
                 }
 
                 return {
                     doc: raw, formatted: clean || raw, esValid: false,
-                    msgHtml: "IBAN incorrecte.", msgTxt: "IBAN incorrecte."
+                    msgHtml: "IBAN incorrecte.", msgTxt: "IBAN incorrecte.",
+                    ...bancBuit
                 };
             },
 
@@ -1521,11 +1729,13 @@
                             <button class="btn-secundari btn-petit p-1" onclick="navigator.clipboard.writeText('${item.formatted}')" title="Copia aquest IBAN">Copia</button>
                         </td>
                         <td class="text-left font-bold font-mono">${Utils.sanitizeHTML(item.formatted)}</td>
+                        <td class="text-left">${item.nomHtml}</td>
+                        <td class="text-left">${item.bicHtml}</td>
                         <td class="text-left text-sm" style="color: var(${item.esValid ? '--succes-text' : '--error-text'});">${item.msgHtml}</td>
                     </tr>`;
                 });
 
-                tbody.innerHTML = htmlRows || `<tr><td colspan="3" class="text-center p-3 color-secundari font-italic">Cap resultat a mostrar.</td></tr>`;
+                tbody.innerHTML = htmlRows || `<tr><td colspan="5" class="text-center p-3 color-secundari font-italic">Cap resultat a mostrar.</td></tr>`;
             },
 
             copyIBAN: () => {
@@ -1536,13 +1746,13 @@
 
             exportIBANTxt: () => {
                 const items = AppState.ibanResults.filter(i => !document.getElementById('filter-errors-iban').checked || !i.esValid);
-                const txt = items.map(i => `${i.formatted} \t ${i.msgTxt}`).join('\n');
+                const txt = items.map(i => `${i.formatted} \t ${i.nomTxt} \t ${i.bicTxt} \t ${i.msgTxt}`).join('\n');
                 Utils.downloadStr(`validacio_iban_${new Date().toISOString().slice(0, 10)}.txt`, txt);
             },
 
             exportIBANCSV: () => {
                 const items = AppState.ibanResults.filter(i => !document.getElementById('filter-errors-iban').checked || !i.esValid);
-                const csv = "\ufeffCompte_IBAN;Estat\n" + items.map(i => `"${i.formatted}";"${i.msgTxt}"`).join('\n');
+                const csv = "\ufeffCompte_IBAN;Entitat;BIC;Estat\n" + items.map(i => `"${i.formatted}";"${i.nomTxt}";"${i.bicTxt}";"${i.msgTxt}"`).join('\n');
                 Utils.downloadStr(`validacio_iban_${new Date().toISOString().slice(0, 10)}.csv`, csv);
             }
         };
@@ -1641,6 +1851,16 @@
                                         <td class="text-right font-bold color-accent" style="padding: 4px 0; border-bottom: 1px dashed var(--vora);">${Utils.formatNum(h.res)}</td>
                                       </tr>`).join('') + 
                        `</tbody></table>`;
+            }
+        };
+		
+        window.toggleCollapsible = (id, el) => {
+            const box = document.getElementById(id);
+            if (!box) return;
+            const amagat = box.classList.toggle('hidden');
+            const span = el.querySelector('.indicador-toggle');
+            if (span) {
+                span.textContent = amagat ? '▼ Mostra / Amaga' : '▲ Mostra / Amaga';
             }
         };
     </script>
